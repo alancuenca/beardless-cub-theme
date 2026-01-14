@@ -78,17 +78,55 @@
   "sections": {
     "hero": {
       "name": "Hero slideshow",
-      "slide": "Slide"
+      "slide": "Slide",
+      "autoplay": "Autoplay slides",
+      "autoplay_speed": "Autoplay speed",
+      "image": "Background image",
+      "overlay_opacity": "Overlay opacity",
+      "subheading": "Subheading",
+      "heading": "Heading",
+      "button_text": "Button text",
+      "button_link": "Button link",
+      "content_position": "Content position",
+      "text_color": "Text color"
     },
     "featured_collection": {
-      "name": "Featured collection"
+      "name": "Featured collection",
+      "heading": "Heading",
+      "collection": "Collection",
+      "products_to_show": "Products to show",
+      "columns_desktop": "Columns on desktop",
+      "columns_mobile": "Columns on mobile",
+      "show_vendor": "Show vendor",
+      "show_quick_add": "Show quick add button",
+      "view_all": "Show view all link"
     },
     "product_highlight": {
-      "name": "Product highlight"
+      "name": "Product highlight",
+      "product": "Product",
+      "layout": "Layout",
+      "show_metafields": "Show product metafields",
+      "background_color": "Background color"
     },
     "testimonials": {
       "name": "Testimonials",
-      "testimonial": "Testimonial"
+      "testimonial": "Testimonial",
+      "subheading": "Subheading",
+      "heading": "Heading",
+      "rating": "Rating",
+      "quote": "Quote",
+      "author": "Author name",
+      "author_title": "Author title",
+      "author_image": "Author image"
+    },
+    "header": {
+      "name": "Header",
+      "logo": "Logo image",
+      "logo_width": "Logo width",
+      "menu": "Navigation menu"
+    },
+    "footer": {
+      "name": "Footer"
     },
     "cart_drawer": {
       "name": "Cart drawer"
