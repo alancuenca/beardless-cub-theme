@@ -5,7 +5,7 @@
   Mobile-first design with hamburger menu for smaller screens.
 {% endcomment %}
 
-<header class="header" data-header>
+<header class="header" data-header style="--logo-text-size: {{ section.settings.logo_text_size }}px;">
   <div class="header__inner">
     {% comment %} Mobile menu toggle {% endcomment %}
     <button
@@ -26,7 +26,9 @@
     {% comment %} Logo / Store name {% endcomment %}
     <div class="header__logo">
       <a href="{{ routes.root_url }}" class="header__logo-link">
-        {% if section.settings.logo %}
+        {% if section.settings.logo_text != blank %}
+          <span class="header__logo-text">{{ section.settings.logo_text | escape }}</span>
+        {% elsif section.settings.logo %}
           <img
             src="{{ section.settings.logo | image_url: width: 200 }}"
             srcset="{{ section.settings.logo | image_url: width: 200 }} 1x, {{ section.settings.logo | image_url: width: 400 }} 2x"
@@ -36,7 +38,7 @@
             loading="eager"
           >
         {% else %}
-          <span class="header__logo-text">{{ shop.name }}</span>
+          <span class="header__logo-text">{{ shop.name | escape }}</span>
         {% endif %}
       </a>
     </div>
@@ -297,7 +299,7 @@
   }
 
   .header__logo-text {
-    font-size: var(--text-xl);
+    font-size: var(--logo-text-size, var(--text-xl));
     font-weight: 600;
     letter-spacing: -0.02em;
   }
@@ -518,6 +520,12 @@
       "label": "t:sections.header.logo"
     },
     {
+      "type": "text",
+      "id": "logo_text",
+      "label": "t:sections.header.logo_text",
+      "default": "Beardless Cub"
+    },
+    {
       "type": "range",
       "id": "logo_width",
       "min": 50,
@@ -526,6 +534,16 @@
       "unit": "px",
       "label": "t:sections.header.logo_width",
       "default": 100
+    },
+    {
+      "type": "range",
+      "id": "logo_text_size",
+      "min": 16,
+      "max": 40,
+      "step": 1,
+      "unit": "px",
+      "label": "t:sections.header.logo_text_size",
+      "default": 24
     },
     {
       "type": "link_list",

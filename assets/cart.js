@@ -19,6 +19,8 @@ class CartDrawer {
 
     this.isOpen = false;
     this.isUpdating = false;
+    this.lastActiveElement = null;
+    this.scrollPosition = 0;
 
     this.init();
   }
@@ -32,6 +34,8 @@ class CartDrawer {
 
     // Initial cart fetch
     this.fetchCart();
+
+    document.addEventListener('cart:refresh', () => this.fetchCart());
   }
 
   /**
@@ -96,6 +100,12 @@ class CartDrawer {
         }
       }
     });
+
+    this.drawer?.addEventListener('keydown', (e) => {
+      if (e.key === 'Tab' && this.isOpen) {
+        this.handleTabKey(e);
+      }
+    });
   }
 
   /**
@@ -111,17 +121,24 @@ class CartDrawer {
   open() {
     if (!this.drawer) return;
 
+    this.lastActiveElement = document.activeElement;
     this.isOpen = true;
     this.drawer.setAttribute('data-drawer-open', 'true');
     this.overlay?.classList.add('overlay--visible');
     document.body.setAttribute('data-drawer-open', 'true');
+    this.lockScroll();
 
-    // Focus management
-    const firstFocusable = this.drawer.querySelector('button, [href], input');
-    firstFocusable?.focus();
-
-    // Announce to screen readers
     this.drawer.setAttribute('aria-hidden', 'false');
+
+    const focusable = this.getFocusableElements();
+    const firstFocusable = focusable[ 0 ] || this.drawer;
+    if (firstFocusable?.focus) {
+      try {
+        firstFocusable.focus({ preventScroll: true });
+      } catch {
+        firstFocusable.focus();
+      }
+    }
   }
 
   /**
@@ -136,9 +153,19 @@ class CartDrawer {
     document.body.removeAttribute('data-drawer-open');
 
     this.drawer.setAttribute('aria-hidden', 'true');
+    this.unlockScroll();
 
-    // Return focus to trigger
-    document.querySelector('[data-cart-toggle]')?.focus();
+    const target =
+      (this.lastActiveElement && document.contains(this.lastActiveElement))
+        ? this.lastActiveElement
+        : document.querySelector('[data-cart-toggle]');
+    if (target?.focus) {
+      try {
+        target.focus({ preventScroll: true });
+      } catch {
+        target.focus();
+      }
+    }
   }
 
   /**
@@ -268,10 +295,10 @@ class CartDrawer {
 
     // Collect properties
     const properties = {};
-    for (const [key, value] of formData.entries()) {
+    for (const [ key, value ] of formData.entries()) {
       if (key.startsWith('properties[')) {
         const propKey = key.replace('properties[', '').replace(']', '');
-        properties[propKey] = value;
+        properties[ propKey ] = value;
       }
     }
 
@@ -481,6 +508,58 @@ class CartDrawer {
       toast.classList.remove('cart-toast--visible');
       setTimeout(() => toast.remove(), 300);
     }, 3000);
+  }
+
+  lockScroll() {
+    this.scrollPosition = window.scrollY || window.pageYOffset;
+    document.body.style.position = 'fixed';
+    document.body.style.top = `-${this.scrollPosition}px`;
+    document.body.style.width = '100%';
+  }
+
+  unlockScroll() {
+    const scrollY = this.scrollPosition || 0;
+    document.body.style.position = '';
+    document.body.style.top = '';
+    document.body.style.width = '';
+    window.scrollTo(0, scrollY);
+  }
+
+  getFocusableElements() {
+    if (!this.drawer) return [];
+    return Array.from(
+      this.drawer.querySelectorAll(
+        'a[href], button:not([disabled]), textarea, input, select, [tabindex]:not([tabindex="-1"])'
+      )
+    );
+  }
+
+  handleTabKey(e) {
+    const focusable = this.getFocusableElements();
+    if (focusable.length === 0) {
+      e.preventDefault();
+      return;
+    }
+
+    const first = focusable[ 0 ];
+    const last = focusable[ focusable.length - 1 ];
+    const active = document.activeElement;
+
+    if (e.shiftKey && active === first) {
+      e.preventDefault();
+      try {
+        last.focus({ preventScroll: true });
+      } catch {
+        last.focus();
+      }
+    } else if (!e.shiftKey && active === last) {
+      e.preventDefault();
+      try {
+        first.focus({ preventScroll: true });
+      } catch {
+        first.focus();
+      }
+    }
   }
 }
 
