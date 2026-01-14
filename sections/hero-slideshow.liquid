@@ -1,0 +1,726 @@
+{% comment %}
+  Hero Slideshow Section
+
+  Full-width hero section with multiple slides using the Shopify blocks system.
+  Features autoplay, navigation dots, and View Transitions API for smooth animations.
+  Optimized for performance with lazy loading and proper image sizing.
+{% endcomment %}
+
+{% liquid
+  assign slide_count = section.blocks.size
+  assign autoplay = section.settings.autoplay
+  assign autoplay_speed = section.settings.autoplay_speed | times: 1000
+%}
+
+<section
+  class="hero full-width"
+  data-hero-slideshow
+  data-autoplay="{{ autoplay }}"
+  data-autoplay-speed="{{ autoplay_speed }}"
+  aria-label="{{ 'sections.hero.name' | t }}"
+  style="--slide-count: {{ slide_count }};"
+>
+  <div class="hero__slides" data-hero-slides>
+    {% for block in section.blocks %}
+      {% liquid
+        assign is_first = false
+        if forloop.first
+          assign is_first = true
+        endif
+
+        assign content_position = block.settings.content_position | default: 'middle_center'
+        assign text_color = block.settings.text_color | default: 'light'
+        assign overlay_opacity = block.settings.overlay_opacity | default: 40
+      %}
+
+      <article
+        class="hero__slide{% if is_first %} is-active{% endif %}"
+        data-hero-slide
+        data-index="{{ forloop.index0 }}"
+        {{ block.shopify_attributes }}
+        aria-hidden="{% if is_first %}false{% else %}true{% endif %}"
+      >
+        {% comment %} Background Image {% endcomment %}
+        <div class="hero__media">
+          {% if block.settings.image %}
+            <picture>
+              <source
+                media="(min-width: 768px)"
+                srcset="
+                  {{ block.settings.image | image_url: width: 1200 }} 1200w,
+                  {{ block.settings.image | image_url: width: 1600 }} 1600w,
+                  {{ block.settings.image | image_url: width: 2000 }} 2000w,
+                  {{ block.settings.image | image_url: width: 2400 }} 2400w
+                "
+                sizes="100vw"
+              >
+              <img
+                src="{{ block.settings.image | image_url: width: 800 }}"
+                srcset="
+                  {{ block.settings.image | image_url: width: 600 }} 600w,
+                  {{ block.settings.image | image_url: width: 800 }} 800w,
+                  {{ block.settings.image | image_url: width: 1000 }} 1000w
+                "
+                sizes="100vw"
+                alt="{{ block.settings.image.alt | default: block.settings.heading | escape }}"
+                width="{{ block.settings.image.width }}"
+                height="{{ block.settings.image.height }}"
+                class="hero__image"
+                {% if is_first %}
+                  loading="eager"
+                  fetchpriority="high"
+                {% else %}
+                  loading="lazy"
+                {% endif %}
+              >
+            </picture>
+          {% else %}
+            <div class="hero__placeholder">
+              {{ 'lifestyle-1' | placeholder_svg_tag }}
+            </div>
+          {% endif %}
+
+          {% comment %} Overlay {% endcomment %}
+          <div
+            class="hero__overlay"
+            style="--overlay-opacity: {{ overlay_opacity | divided_by: 100.0 }};"
+            aria-hidden="true"
+          ></div>
+        </div>
+
+        {% comment %} Content {% endcomment %}
+        <div
+          class="hero__content hero__content--{{ content_position }} hero__content--{{ text_color }}"
+        >
+          <div class="hero__content-inner">
+            {% if block.settings.subheading != blank %}
+              <p class="hero__subheading">{{ block.settings.subheading }}</p>
+            {% endif %}
+
+            {% if block.settings.heading != blank %}
+              <h2 class="hero__heading">{{ block.settings.heading }}</h2>
+            {% endif %}
+
+            {% if block.settings.text != blank %}
+              <p class="hero__text">{{ block.settings.text }}</p>
+            {% endif %}
+
+            {% if block.settings.button_text != blank and block.settings.button_link != blank %}
+              <a
+                href="{{ block.settings.button_link }}"
+                class="btn {% if text_color == 'light' %}btn--secondary{% else %}btn--primary{% endif %} btn--lg hero__button"
+              >
+                {{ block.settings.button_text }}
+              </a>
+            {% endif %}
+          </div>
+        </div>
+      </article>
+    {% endfor %}
+  </div>
+
+  {% comment %} Navigation {% endcomment %}
+  {% if slide_count > 1 %}
+    <nav class="hero__nav" aria-label="Slide navigation">
+      <button
+        type="button"
+        class="hero__nav-btn hero__nav-btn--prev"
+        data-hero-prev
+        aria-label="{{ 'sections.hero.previous_slide' | t }}"
+      >
+        <svg width="24" height="24" viewBox="0 0 24 24" fill="none" aria-hidden="true">
+          <path d="M15 18l-6-6 6-6" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"/>
+        </svg>
+      </button>
+
+      <div class="hero__dots" role="tablist">
+        {% for block in section.blocks %}
+          <button
+            type="button"
+            class="hero__dot{% if forloop.first %} is-active{% endif %}"
+            data-hero-dot
+            data-index="{{ forloop.index0 }}"
+            role="tab"
+            aria-selected="{% if forloop.first %}true{% else %}false{% endif %}"
+            aria-label="{{ 'sections.hero.slide' | t }} {{ forloop.index }}"
+          >
+            <span class="visually-hidden">{{ 'sections.hero.slide' | t }} {{ forloop.index }}</span>
+          </button>
+        {% endfor %}
+      </div>
+
+      <button
+        type="button"
+        class="hero__nav-btn hero__nav-btn--next"
+        data-hero-next
+        aria-label="{{ 'sections.hero.next_slide' | t }}"
+      >
+        <svg width="24" height="24" viewBox="0 0 24 24" fill="none" aria-hidden="true">
+          <path d="M9 18l6-6-6-6" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"/>
+        </svg>
+      </button>
+    </nav>
+
+    {% comment %} Autoplay Progress {% endcomment %}
+    {% if autoplay %}
+      <div class="hero__progress" data-hero-progress aria-hidden="true">
+        <div class="hero__progress-bar" style="--autoplay-speed: {{ autoplay_speed }}ms;"></div>
+      </div>
+    {% endif %}
+  {% endif %}
+</section>
+
+{% javascript %}
+  class HeroSlideshow {
+    constructor(element) {
+      this.element = element;
+      this.slides = element.querySelectorAll('[data-hero-slide]');
+      this.dots = element.querySelectorAll('[data-hero-dot]');
+      this.prevBtn = element.querySelector('[data-hero-prev]');
+      this.nextBtn = element.querySelector('[data-hero-next]');
+      this.progressBar = element.querySelector('[data-hero-progress]');
+
+      this.currentIndex = 0;
+      this.slideCount = this.slides.length;
+      this.autoplay = element.dataset.autoplay === 'true';
+      this.autoplaySpeed = parseInt(element.dataset.autoplaySpeed, 10) || 5000;
+      this.autoplayTimer = null;
+      this.isPaused = false;
+
+      if (this.slideCount > 1) {
+        this.init();
+      }
+    }
+
+    init() {
+      // Bind navigation events
+      this.prevBtn?.addEventListener('click', () => this.prev());
+      this.nextBtn?.addEventListener('click', () => this.next());
+
+      this.dots.forEach((dot, index) => {
+        dot.addEventListener('click', () => this.goTo(index));
+      });
+
+      // Pause on hover/focus
+      this.element.addEventListener('mouseenter', () => this.pause());
+      this.element.addEventListener('mouseleave', () => this.resume());
+      this.element.addEventListener('focusin', () => this.pause());
+      this.element.addEventListener('focusout', (e) => {
+        if (!this.element.contains(e.relatedTarget)) {
+          this.resume();
+        }
+      });
+
+      // Keyboard navigation
+      this.element.addEventListener('keydown', (e) => {
+        if (e.key === 'ArrowLeft') {
+          this.prev();
+        } else if (e.key === 'ArrowRight') {
+          this.next();
+        }
+      });
+
+      // Touch/swipe support
+      this.initTouchEvents();
+
+      // Start autoplay
+      if (this.autoplay) {
+        this.startAutoplay();
+      }
+    }
+
+    initTouchEvents() {
+      let touchStartX = 0;
+      let touchEndX = 0;
+
+      this.element.addEventListener('touchstart', (e) => {
+        touchStartX = e.changedTouches[0].screenX;
+      }, { passive: true });
+
+      this.element.addEventListener('touchend', (e) => {
+        touchEndX = e.changedTouches[0].screenX;
+        this.handleSwipe(touchStartX, touchEndX);
+      }, { passive: true });
+    }
+
+    handleSwipe(startX, endX) {
+      const threshold = 50;
+      const diff = startX - endX;
+
+      if (Math.abs(diff) > threshold) {
+        if (diff > 0) {
+          this.next();
+        } else {
+          this.prev();
+        }
+      }
+    }
+
+    goTo(index) {
+      if (index === this.currentIndex) return;
+
+      const direction = index > this.currentIndex ? 'next' : 'prev';
+
+      // Use View Transitions API if available
+      if (document.startViewTransition) {
+        document.startViewTransition(() => {
+          this.updateSlide(index, direction);
+        });
+      } else {
+        this.updateSlide(index, direction);
+      }
+
+      // Reset autoplay timer
+      if (this.autoplay && !this.isPaused) {
+        this.restartAutoplay();
+      }
+    }
+
+    updateSlide(newIndex, direction) {
+      const currentSlide = this.slides[this.currentIndex];
+      const nextSlide = this.slides[newIndex];
+      const currentDot = this.dots[this.currentIndex];
+      const nextDot = this.dots[newIndex];
+
+      // Update slides
+      currentSlide.classList.remove('is-active');
+      currentSlide.setAttribute('aria-hidden', 'true');
+
+      nextSlide.classList.add('is-active');
+      nextSlide.setAttribute('aria-hidden', 'false');
+
+      // Update dots
+      currentDot?.classList.remove('is-active');
+      currentDot?.setAttribute('aria-selected', 'false');
+
+      nextDot?.classList.add('is-active');
+      nextDot?.setAttribute('aria-selected', 'true');
+
+      this.currentIndex = newIndex;
+    }
+
+    next() {
+      const nextIndex = (this.currentIndex + 1) % this.slideCount;
+      this.goTo(nextIndex);
+    }
+
+    prev() {
+      const prevIndex = (this.currentIndex - 1 + this.slideCount) % this.slideCount;
+      this.goTo(prevIndex);
+    }
+
+    startAutoplay() {
+      this.autoplayTimer = setInterval(() => {
+        if (!this.isPaused) {
+          this.next();
+        }
+      }, this.autoplaySpeed);
+
+      this.progressBar?.classList.add('is-playing');
+    }
+
+    restartAutoplay() {
+      clearInterval(this.autoplayTimer);
+      this.progressBar?.classList.remove('is-playing');
+
+      // Force reflow to restart animation
+      void this.progressBar?.offsetWidth;
+
+      this.startAutoplay();
+    }
+
+    pause() {
+      this.isPaused = true;
+      this.progressBar?.classList.add('is-paused');
+    }
+
+    resume() {
+      this.isPaused = false;
+      this.progressBar?.classList.remove('is-paused');
+    }
+  }
+
+  // Initialize all hero slideshows
+  document.querySelectorAll('[data-hero-slideshow]').forEach(el => {
+    new HeroSlideshow(el);
+  });
+{% endjavascript %}
+
+{% stylesheet %}
+  .hero {
+    position: relative;
+    height: 100svh;
+    min-height: 500px;
+    max-height: 900px;
+    overflow: hidden;
+  }
+
+  @media (min-width: 768px) {
+    .hero {
+      min-height: 600px;
+    }
+  }
+
+  .hero__slides {
+    position: relative;
+    width: 100%;
+    height: 100%;
+  }
+
+  .hero__slide {
+    position: absolute;
+    inset: 0;
+    opacity: 0;
+    visibility: hidden;
+    transition: opacity var(--transition-slow), visibility var(--transition-slow);
+  }
+
+  .hero__slide.is-active {
+    opacity: 1;
+    visibility: visible;
+  }
+
+  /* Media */
+  .hero__media {
+    position: absolute;
+    inset: 0;
+  }
+
+  .hero__image {
+    width: 100%;
+    height: 100%;
+    object-fit: cover;
+  }
+
+  .hero__placeholder {
+    width: 100%;
+    height: 100%;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    background-color: var(--color-muted);
+  }
+
+  .hero__placeholder svg {
+    width: 50%;
+    height: 50%;
+    opacity: 0.3;
+  }
+
+  .hero__overlay {
+    position: absolute;
+    inset: 0;
+    background-color: rgba(0, 0, 0, var(--overlay-opacity, 0.4));
+  }
+
+  /* Content */
+  .hero__content {
+    position: absolute;
+    inset: 0;
+    display: flex;
+    padding: var(--space-xl);
+    padding-top: calc(var(--space-xl) + 5rem);
+  }
+
+  @media (min-width: 768px) {
+    .hero__content {
+      padding: var(--space-3xl);
+      padding-top: calc(var(--space-3xl) + 5rem);
+    }
+  }
+
+  /* Content Positions */
+  .hero__content--top_left { align-items: flex-start; justify-content: flex-start; }
+  .hero__content--top_center { align-items: flex-start; justify-content: center; text-align: center; }
+  .hero__content--top_right { align-items: flex-start; justify-content: flex-end; text-align: right; }
+  .hero__content--middle_left { align-items: center; justify-content: flex-start; }
+  .hero__content--middle_center { align-items: center; justify-content: center; text-align: center; }
+  .hero__content--middle_right { align-items: center; justify-content: flex-end; text-align: right; }
+  .hero__content--bottom_left { align-items: flex-end; justify-content: flex-start; }
+  .hero__content--bottom_center { align-items: flex-end; justify-content: center; text-align: center; }
+  .hero__content--bottom_right { align-items: flex-end; justify-content: flex-end; text-align: right; }
+
+  /* Text Colors */
+  .hero__content--light {
+    color: white;
+  }
+
+  .hero__content--dark {
+    color: var(--color-foreground);
+  }
+
+  .hero__content-inner {
+    max-width: 600px;
+  }
+
+  .hero__subheading {
+    font-size: var(--text-sm);
+    font-weight: 500;
+    text-transform: uppercase;
+    letter-spacing: 0.15em;
+    margin-bottom: var(--space-sm);
+    opacity: 0.9;
+  }
+
+  .hero__heading {
+    font-size: var(--text-3xl);
+    font-weight: 600;
+    line-height: 1.1;
+    margin-bottom: var(--space-md);
+  }
+
+  @media (min-width: 768px) {
+    .hero__heading {
+      font-size: var(--text-5xl);
+    }
+  }
+
+  .hero__text {
+    font-size: var(--text-base);
+    line-height: 1.6;
+    margin-bottom: var(--space-lg);
+    opacity: 0.9;
+  }
+
+  @media (min-width: 768px) {
+    .hero__text {
+      font-size: var(--text-lg);
+    }
+  }
+
+  .hero__button {
+    margin-top: var(--space-sm);
+  }
+
+  .hero__content--light .btn--secondary {
+    border-color: white;
+    color: white;
+  }
+
+  .hero__content--light .btn--secondary:hover {
+    background-color: white;
+    color: var(--color-primary);
+  }
+
+  /* Navigation */
+  .hero__nav {
+    position: absolute;
+    bottom: var(--space-xl);
+    left: 50%;
+    transform: translateX(-50%);
+    display: flex;
+    align-items: center;
+    gap: var(--space-md);
+    z-index: 10;
+  }
+
+  .hero__nav-btn {
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    width: 2.5rem;
+    height: 2.5rem;
+    border-radius: var(--radius-full);
+    background-color: rgba(255, 255, 255, 0.2);
+    color: white;
+    backdrop-filter: blur(8px);
+    transition: background-color var(--transition-fast);
+  }
+
+  .hero__nav-btn:hover {
+    background-color: rgba(255, 255, 255, 0.3);
+  }
+
+  .hero__dots {
+    display: flex;
+    gap: var(--space-sm);
+  }
+
+  .hero__dot {
+    width: 0.75rem;
+    height: 0.75rem;
+    border-radius: var(--radius-full);
+    background-color: rgba(255, 255, 255, 0.4);
+    transition: background-color var(--transition-fast), transform var(--transition-fast);
+  }
+
+  .hero__dot:hover {
+    background-color: rgba(255, 255, 255, 0.6);
+  }
+
+  .hero__dot.is-active {
+    background-color: white;
+    transform: scale(1.2);
+  }
+
+  /* Autoplay Progress */
+  .hero__progress {
+    position: absolute;
+    bottom: 0;
+    left: 0;
+    right: 0;
+    height: 3px;
+    background-color: rgba(255, 255, 255, 0.2);
+  }
+
+  .hero__progress-bar {
+    height: 100%;
+    width: 0;
+    background-color: white;
+  }
+
+  .hero__progress.is-playing .hero__progress-bar {
+    animation: heroProgress var(--autoplay-speed, 5000ms) linear infinite;
+  }
+
+  .hero__progress.is-paused .hero__progress-bar {
+    animation-play-state: paused;
+  }
+
+  @keyframes heroProgress {
+    from { width: 0; }
+    to { width: 100%; }
+  }
+
+  /* View Transitions */
+  @supports (view-transition-name: hero) {
+    .hero__slide {
+      view-transition-name: hero-slide;
+    }
+
+    ::view-transition-old(hero-slide),
+    ::view-transition-new(hero-slide) {
+      animation-duration: 0.4s;
+    }
+  }
+{% endstylesheet %}
+
+{% schema %}
+{
+  "name": "t:sections.hero.name",
+  "tag": "section",
+  "class": "section-hero",
+  "max_blocks": 6,
+  "settings": [
+    {
+      "type": "checkbox",
+      "id": "autoplay",
+      "label": "t:sections.hero.autoplay",
+      "default": true
+    },
+    {
+      "type": "range",
+      "id": "autoplay_speed",
+      "min": 3,
+      "max": 10,
+      "step": 1,
+      "unit": "s",
+      "label": "t:sections.hero.autoplay_speed",
+      "default": 5
+    }
+  ],
+  "blocks": [
+    {
+      "type": "slide",
+      "name": "t:sections.hero.slide",
+      "settings": [
+        {
+          "type": "image_picker",
+          "id": "image",
+          "label": "t:sections.hero.image"
+        },
+        {
+          "type": "range",
+          "id": "overlay_opacity",
+          "min": 0,
+          "max": 100,
+          "step": 5,
+          "unit": "%",
+          "label": "t:sections.hero.overlay_opacity",
+          "default": 40
+        },
+        {
+          "type": "header",
+          "content": "Content"
+        },
+        {
+          "type": "text",
+          "id": "subheading",
+          "label": "t:sections.hero.subheading",
+          "default": "New Collection"
+        },
+        {
+          "type": "text",
+          "id": "heading",
+          "label": "t:sections.hero.heading",
+          "default": "Discover Timeless Elegance"
+        },
+        {
+          "type": "textarea",
+          "id": "text",
+          "label": "t:labels.text",
+          "default": "Explore our curated selection of handcrafted jewelry and refined clothing."
+        },
+        {
+          "type": "text",
+          "id": "button_text",
+          "label": "t:sections.hero.button_text",
+          "default": "Shop Now"
+        },
+        {
+          "type": "url",
+          "id": "button_link",
+          "label": "t:sections.hero.button_link"
+        },
+        {
+          "type": "header",
+          "content": "Layout"
+        },
+        {
+          "type": "select",
+          "id": "content_position",
+          "label": "t:sections.hero.content_position",
+          "options": [
+            { "value": "top_left", "label": "t:options.content_position.top_left" },
+            { "value": "top_center", "label": "t:options.content_position.top_center" },
+            { "value": "top_right", "label": "t:options.content_position.top_right" },
+            { "value": "middle_left", "label": "t:options.content_position.middle_left" },
+            { "value": "middle_center", "label": "t:options.content_position.middle_center" },
+            { "value": "middle_right", "label": "t:options.content_position.middle_right" },
+            { "value": "bottom_left", "label": "t:options.content_position.bottom_left" },
+            { "value": "bottom_center", "label": "t:options.content_position.bottom_center" },
+            { "value": "bottom_right", "label": "t:options.content_position.bottom_right" }
+          ],
+          "default": "middle_center"
+        },
+        {
+          "type": "select",
+          "id": "text_color",
+          "label": "t:sections.hero.text_color",
+          "options": [
+            { "value": "light", "label": "t:options.text_color.light" },
+            { "value": "dark", "label": "t:options.text_color.dark" }
+          ],
+          "default": "light"
+        }
+      ]
+    }
+  ],
+  "presets": [
+    {
+      "name": "t:sections.hero.name",
+      "blocks": [
+        {
+          "type": "slide",
+          "settings": {
+            "heading": "Discover Timeless Elegance",
+            "subheading": "New Collection",
+            "text": "Explore our curated selection of handcrafted jewelry and refined clothing.",
+            "button_text": "Shop Now"
+          }
+        }
+      ]
+    }
+  ]
+}
+{% endschema %}

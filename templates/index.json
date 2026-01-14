@@ -1,20 +1,102 @@
-/*
- * ------------------------------------------------------------
- * IMPORTANT: The contents of this file are auto-generated.
- *
- * This file may be updated by the Shopify admin theme editor
- * or related systems. Please exercise caution as any changes
- * made to this file may be overwritten.
- * ------------------------------------------------------------
- */
 {
   "sections": {
-    "main": {
-      "type": "hello-world",
-      "settings": {}
+    "hero": {
+      "type": "hero-slideshow",
+      "blocks": {
+        "slide_1": {
+          "type": "slide",
+          "settings": {
+            "heading": "Discover Timeless Elegance",
+            "subheading": "New Collection",
+            "text": "Explore our curated selection of handcrafted jewelry and refined clothing for the modern individual.",
+            "button_text": "Shop Now",
+            "content_position": "middle_center",
+            "text_color": "light",
+            "overlay_opacity": 40
+          }
+        },
+        "slide_2": {
+          "type": "slide",
+          "settings": {
+            "heading": "Crafted with Care",
+            "subheading": "Artisan Quality",
+            "text": "Each piece is thoughtfully designed and crafted to become a cherished part of your collection.",
+            "button_text": "Explore Collection",
+            "content_position": "middle_left",
+            "text_color": "light",
+            "overlay_opacity": 50
+          }
+        }
+      },
+      "block_order": ["slide_1", "slide_2"],
+      "settings": {
+        "autoplay": true,
+        "autoplay_speed": 5
+      }
+    },
+    "featured_collection": {
+      "type": "featured-collection",
+      "settings": {
+        "heading": "Featured Collection",
+        "subheading": "Our most loved pieces, hand-selected for you.",
+        "products_to_show": 4,
+        "columns_desktop": "4",
+        "columns_mobile": "2",
+        "image_ratio": "portrait",
+        "show_vendor": false,
+        "show_quick_add": true,
+        "show_view_all": true
+      }
+    },
+    "product_highlight": {
+      "type": "product-highlight",
+      "settings": {
+        "layout": "image_left",
+        "show_metafields": true
+      }
+    },
+    "testimonials": {
+      "type": "testimonials",
+      "blocks": {
+        "testimonial_1": {
+          "type": "testimonial",
+          "settings": {
+            "rating": 5,
+            "quote": "The quality and craftsmanship of these pieces exceeded my expectations. Every detail has been thoughtfully considered.",
+            "author": "Sarah Johnson",
+            "author_title": "Verified Customer"
+          }
+        },
+        "testimonial_2": {
+          "type": "testimonial",
+          "settings": {
+            "rating": 5,
+            "quote": "I've been searching for jewelry that's both elegant and wearable for everyday. This collection is exactly what I was looking for.",
+            "author": "Emily Chen",
+            "author_title": "Loyal Customer"
+          }
+        },
+        "testimonial_3": {
+          "type": "testimonial",
+          "settings": {
+            "rating": 5,
+            "quote": "The attention to detail is remarkable. These pieces have become staples in my wardrobe and I receive compliments constantly.",
+            "author": "Michael Torres",
+            "author_title": "First-time Buyer"
+          }
+        }
+      },
+      "block_order": ["testimonial_1", "testimonial_2", "testimonial_3"],
+      "settings": {
+        "subheading": "Testimonials",
+        "heading": "What our customers say"
+      }
     }
   },
   "order": [
-    "main"
+    "hero",
+    "featured_collection",
+    "product_highlight",
+    "testimonials"
   ]
 }

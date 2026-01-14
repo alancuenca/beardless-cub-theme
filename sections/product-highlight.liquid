@@ -1,0 +1,462 @@
+{% comment %}
+  Product Highlight Section
+
+  Showcases a single featured product with large imagery and detailed information.
+  Demonstrates metafield integration for product attributes like material and care instructions.
+  Flexible layout with image position options.
+{% endcomment %}
+
+{% liquid
+  assign product = section.settings.product
+  assign layout = section.settings.layout
+  assign show_metafields = section.settings.show_metafields
+  assign bg_color = section.settings.background_color
+
+  if product
+    assign current_variant = product.selected_or_first_available_variant
+    assign featured_image = product.featured_image
+
+    assign material = product.metafields.custom.material
+    assign care_instructions = product.metafields.custom.care_instructions
+    assign sizing_guide = product.metafields.custom.sizing_guide
+  endif
+%}
+
+<section
+  class="product-highlight product-highlight--{{ layout }}"
+  style="{% if bg_color != blank and bg_color != 'rgba(0,0,0,0)' %}--section-bg: {{ bg_color }};{% endif %}"
+>
+  {% if product %}
+    <div class="product-highlight__media">
+      {% if featured_image %}
+        <img
+          src="{{ featured_image | image_url: width: 1000 }}"
+          srcset="
+            {{ featured_image | image_url: width: 600 }} 600w,
+            {{ featured_image | image_url: width: 800 }} 800w,
+            {{ featured_image | image_url: width: 1000 }} 1000w,
+            {{ featured_image | image_url: width: 1200 }} 1200w
+          "
+          sizes="(min-width: 1024px) 50vw, 100vw"
+          alt="{{ featured_image.alt | default: product.title | escape }}"
+          width="{{ featured_image.width }}"
+          height="{{ featured_image.height }}"
+          class="product-highlight__image"
+          loading="lazy"
+        >
+      {% else %}
+        <div class="product-highlight__placeholder">
+          {{ 'product-1' | placeholder_svg_tag }}
+        </div>
+      {% endif %}
+
+      {% if product.compare_at_price > product.price %}
+        <span class="product-highlight__badge">{{ 'products.on_sale' | t }}</span>
+      {% endif %}
+    </div>
+
+    <div class="product-highlight__content">
+      <div class="product-highlight__content-inner">
+        {% if product.vendor %}
+          <p class="product-highlight__vendor">{{ product.vendor }}</p>
+        {% endif %}
+
+        <h2 class="product-highlight__title">
+          <a href="{{ product.url }}">{{ product.title }}</a>
+        </h2>
+
+        {% render 'price', product: product, show_compare_at: true, price_class: 'product-highlight__price' %}
+
+        {% if product.description != blank %}
+          <div class="product-highlight__description">
+            {{ product.description | strip_html | truncatewords: 50 }}
+          </div>
+        {% endif %}
+
+        {% comment %} Metafields Display {% endcomment %}
+        {% if show_metafields %}
+          <div class="product-highlight__metafields">
+            {% if material %}
+              <div class="product-highlight__meta-item">
+                <span class="product-highlight__meta-label">
+                  <svg width="20" height="20" viewBox="0 0 20 20" fill="none" aria-hidden="true">
+                    <circle cx="10" cy="10" r="7" stroke="currentColor" stroke-width="1.5"/>
+                    <path d="M10 6v4l2.5 2.5" stroke="currentColor" stroke-width="1.5" stroke-linecap="round"/>
+                  </svg>
+                  {{ 'products.material' | t }}
+                </span>
+                <span class="product-highlight__meta-value">
+                  {{ material | metafield_text }}
+                </span>
+              </div>
+            {% endif %}
+
+            {% if care_instructions %}
+              <div class="product-highlight__meta-item">
+                <span class="product-highlight__meta-label">
+                  <svg width="20" height="20" viewBox="0 0 20 20" fill="none" aria-hidden="true">
+                    <path d="M10 2l2.5 5 5.5.8-4 3.9.9 5.5L10 14.7l-4.9 2.5.9-5.5-4-3.9 5.5-.8L10 2z" stroke="currentColor" stroke-width="1.5" stroke-linejoin="round"/>
+                  </svg>
+                  {{ 'products.care_instructions' | t }}
+                </span>
+                <span class="product-highlight__meta-value">
+                  {{ care_instructions | metafield_text }}
+                </span>
+              </div>
+            {% endif %}
+
+            {% if sizing_guide %}
+              <div class="product-highlight__meta-item">
+                <span class="product-highlight__meta-label">
+                  <svg width="20" height="20" viewBox="0 0 20 20" fill="none" aria-hidden="true">
+                    <rect x="3" y="6" width="14" height="8" rx="1" stroke="currentColor" stroke-width="1.5"/>
+                    <path d="M7 6v8M10 6v8M13 6v8" stroke="currentColor" stroke-width="1.5"/>
+                  </svg>
+                  {{ 'products.sizing_guide' | t }}
+                </span>
+                <span class="product-highlight__meta-value">
+                  {{ sizing_guide | metafield_text }}
+                </span>
+              </div>
+            {% endif %}
+          </div>
+        {% endif %}
+
+        {% comment %} Add to Cart Form {% endcomment %}
+        {% form 'product', product, class: 'product-highlight__form' %}
+          <input type="hidden" name="id" value="{{ current_variant.id }}">
+
+          {% if product.variants.size > 1 %}
+            <div class="product-highlight__variants">
+              <label for="variant-select-{{ section.id }}" class="visually-hidden">
+                {{ 'products.select_options' | t }}
+              </label>
+              <select
+                name="id"
+                id="variant-select-{{ section.id }}"
+                class="product-highlight__variant-select"
+              >
+                {% for variant in product.variants %}
+                  <option
+                    value="{{ variant.id }}"
+                    {% if variant == current_variant %}selected{% endif %}
+                    {% unless variant.available %}disabled{% endunless %}
+                  >
+                    {{ variant.title }}{% unless variant.available %} - {{ 'products.sold_out' | t }}{% endunless %}
+                    - {{ variant.price | money }}
+                  </option>
+                {% endfor %}
+              </select>
+            </div>
+          {% endif %}
+
+          <div class="product-highlight__actions">
+            <button
+              type="submit"
+              class="btn btn--primary btn--lg btn--full"
+              {% unless product.available %}disabled{% endunless %}
+            >
+              {% if product.available %}
+                {{ 'products.add_to_cart' | t }}
+              {% else %}
+                {{ 'products.sold_out' | t }}
+              {% endif %}
+            </button>
+
+            <a href="{{ product.url }}" class="btn btn--secondary btn--lg btn--full">
+              {{ 'products.details' | t }}
+            </a>
+          </div>
+        {% endform %}
+      </div>
+    </div>
+  {% else %}
+    {% comment %} Placeholder state {% endcomment %}
+    <div class="product-highlight__media">
+      <div class="product-highlight__placeholder">
+        {{ 'product-1' | placeholder_svg_tag }}
+      </div>
+    </div>
+
+    <div class="product-highlight__content">
+      <div class="product-highlight__content-inner">
+        <p class="product-highlight__vendor">Brand Name</p>
+        <h2 class="product-highlight__title">
+          <a href="#">Product Title</a>
+        </h2>
+        <div class="price product-highlight__price">
+          <span class="price__regular">$99.00</span>
+        </div>
+        <div class="product-highlight__description">
+          <p>Select a product to showcase its details, including custom metafields for material composition, care instructions, and sizing information.</p>
+        </div>
+        <div class="product-highlight__actions">
+          <button type="button" class="btn btn--primary btn--lg btn--full" disabled>
+            {{ 'products.add_to_cart' | t }}
+          </button>
+        </div>
+      </div>
+    </div>
+  {% endif %}
+</section>
+
+{% stylesheet %}
+  .product-highlight {
+    display: grid;
+    gap: var(--space-xl);
+    padding-block: var(--space-2xl);
+    background-color: var(--section-bg, transparent);
+  }
+
+  @media (min-width: 1024px) {
+    .product-highlight {
+      grid-template-columns: 1fr 1fr;
+      gap: var(--space-3xl);
+      padding-block: var(--space-4xl);
+      align-items: center;
+    }
+  }
+
+  /* Layout Variants */
+  .product-highlight--image_right .product-highlight__media {
+    order: 1;
+  }
+
+  @media (min-width: 1024px) {
+    .product-highlight--image_right .product-highlight__media {
+      order: 2;
+    }
+
+    .product-highlight--image_right .product-highlight__content {
+      order: 1;
+    }
+  }
+
+  /* Media */
+  .product-highlight__media {
+    position: relative;
+    aspect-ratio: 3 / 4;
+    overflow: hidden;
+    border-radius: var(--radius-lg);
+    background-color: var(--color-muted);
+  }
+
+  @media (min-width: 1024px) {
+    .product-highlight__media {
+      aspect-ratio: 4 / 5;
+    }
+  }
+
+  .product-highlight__image {
+    width: 100%;
+    height: 100%;
+    object-fit: cover;
+    transition: transform var(--transition-slow);
+  }
+
+  .product-highlight__media:hover .product-highlight__image {
+    transform: scale(1.03);
+  }
+
+  .product-highlight__placeholder {
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    width: 100%;
+    height: 100%;
+  }
+
+  .product-highlight__placeholder svg {
+    width: 40%;
+    height: 40%;
+    opacity: 0.3;
+  }
+
+  .product-highlight__badge {
+    position: absolute;
+    top: var(--space-md);
+    left: var(--space-md);
+    padding: var(--space-xs) var(--space-md);
+    font-size: var(--text-sm);
+    font-weight: 500;
+    background-color: var(--color-accent);
+    color: white;
+    border-radius: var(--radius-sm);
+  }
+
+  /* Content */
+  .product-highlight__content {
+    display: flex;
+    flex-direction: column;
+    justify-content: center;
+  }
+
+  .product-highlight__content-inner {
+    max-width: 500px;
+  }
+
+  @media (min-width: 1024px) {
+    .product-highlight--image_right .product-highlight__content-inner {
+      margin-left: auto;
+    }
+  }
+
+  .product-highlight__vendor {
+    font-size: var(--text-sm);
+    font-weight: 500;
+    text-transform: uppercase;
+    letter-spacing: 0.1em;
+    color: var(--color-accent);
+    margin-bottom: var(--space-sm);
+  }
+
+  .product-highlight__title {
+    font-size: var(--text-2xl);
+    font-weight: 600;
+    line-height: 1.2;
+    margin-bottom: var(--space-md);
+  }
+
+  @media (min-width: 768px) {
+    .product-highlight__title {
+      font-size: var(--text-3xl);
+    }
+  }
+
+  .product-highlight__title a {
+    text-decoration: none;
+  }
+
+  .product-highlight__title a:hover {
+    text-decoration: underline;
+  }
+
+  .product-highlight__price {
+    font-size: var(--text-xl);
+    margin-bottom: var(--space-lg);
+  }
+
+  .product-highlight__description {
+    color: var(--color-secondary);
+    line-height: 1.7;
+    margin-bottom: var(--space-xl);
+  }
+
+  /* Metafields */
+  .product-highlight__metafields {
+    display: flex;
+    flex-direction: column;
+    gap: var(--space-md);
+    padding: var(--space-lg);
+    background-color: var(--color-muted);
+    border-radius: var(--radius-md);
+    margin-bottom: var(--space-xl);
+  }
+
+  .product-highlight__meta-item {
+    display: flex;
+    flex-direction: column;
+    gap: var(--space-xs);
+  }
+
+  @media (min-width: 480px) {
+    .product-highlight__meta-item {
+      flex-direction: row;
+      justify-content: space-between;
+      align-items: center;
+    }
+  }
+
+  .product-highlight__meta-label {
+    display: flex;
+    align-items: center;
+    gap: var(--space-sm);
+    font-size: var(--text-sm);
+    font-weight: 500;
+    color: var(--color-secondary);
+  }
+
+  .product-highlight__meta-label svg {
+    flex-shrink: 0;
+    opacity: 0.7;
+  }
+
+  .product-highlight__meta-value {
+    font-size: var(--text-sm);
+  }
+
+  /* Form */
+  .product-highlight__form {
+    display: flex;
+    flex-direction: column;
+    gap: var(--space-md);
+  }
+
+  .product-highlight__variant-select {
+    width: 100%;
+    padding: var(--space-md);
+    font-size: var(--text-base);
+    border: 1px solid var(--color-border);
+    border-radius: var(--radius-sm);
+    background-color: var(--color-background);
+    cursor: pointer;
+  }
+
+  .product-highlight__actions {
+    display: flex;
+    flex-direction: column;
+    gap: var(--space-sm);
+  }
+
+  @media (min-width: 480px) {
+    .product-highlight__actions {
+      flex-direction: row;
+    }
+
+    .product-highlight__actions .btn {
+      flex: 1;
+    }
+  }
+{% endstylesheet %}
+
+{% schema %}
+{
+  "name": "t:sections.product_highlight.name",
+  "tag": "section",
+  "class": "section-product-highlight",
+  "settings": [
+    {
+      "type": "product",
+      "id": "product",
+      "label": "t:sections.product_highlight.product"
+    },
+    {
+      "type": "select",
+      "id": "layout",
+      "label": "t:sections.product_highlight.layout",
+      "options": [
+        { "value": "image_left", "label": "t:options.layout.image_left" },
+        { "value": "image_right", "label": "t:options.layout.image_right" }
+      ],
+      "default": "image_left"
+    },
+    {
+      "type": "checkbox",
+      "id": "show_metafields",
+      "label": "t:sections.product_highlight.show_metafields",
+      "info": "Shows material, care instructions, and sizing guide if metafields are configured.",
+      "default": true
+    },
+    {
+      "type": "color",
+      "id": "background_color",
+      "label": "t:sections.product_highlight.background_color"
+    }
+  ],
+  "presets": [
+    {
+      "name": "t:sections.product_highlight.name"
+    }
+  ]
+}
+{% endschema %}

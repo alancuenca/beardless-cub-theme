@@ -1,47 +1,337 @@
 {% comment %}
-  This section is used in the collection template to render collection page
-  listing all products within a collection.
+  Collection Section
 
-  https://shopify.dev/docs/storefronts/themes/architecture/templates/collection
+  Main collection page template with product grid, sorting, and pagination.
+  Responsive grid with customizable columns and product card options.
+
+  @see https://shopify.dev/docs/storefronts/themes/architecture/templates/collection
 {% endcomment %}
 
-<h1>{{ collection.title }}</h1>
+{% liquid
+  assign products_per_page = section.settings.products_per_page | default: 12
+  assign columns_desktop = section.settings.columns_desktop | default: 4
+  assign columns_mobile = section.settings.columns_mobile | default: 2
+  assign show_vendor = section.settings.show_vendor
+  assign show_quick_add = section.settings.show_quick_add
+  assign image_ratio = section.settings.image_ratio | default: 'portrait'
+%}
 
-<div class="collection-products">
-  {% paginate collection.products by 20 %}
-    {% for product in collection.products %}
-      <div class="collection-product">
-        {% if product.featured_image %}
-          {% render 'image',
-            class: 'collection-product__image',
-            image: product.featured_image,
-            url: product.url,
-            width: 400,
-            height: 400,
-            crop: 'center'
-          %}
-        {% endif %}
-        <div class="collection-product__content">
-          <p>{{ product.title | escape | link_to: product.url }}</p>
-          <p>{{ product.price | money }}</p>
+<section
+  class="collection-page"
+  style="
+    --columns-desktop: {{ columns_desktop }};
+    --columns-mobile: {{ columns_mobile }};
+  "
+>
+  {% comment %} Collection Header {% endcomment %}
+  <header class="collection-page__header">
+    <div class="collection-page__title-wrap">
+      <h1 class="collection-page__title">{{ collection.title }}</h1>
+      {% if collection.description != blank %}
+        <div class="collection-page__description">
+          {{ collection.description }}
         </div>
-      </div>
-    {% endfor %}
+      {% endif %}
+    </div>
 
-    {{ paginate | default_pagination }}
+    <div class="collection-page__meta">
+      <p class="collection-page__count">
+        {{ 'collections.products_count' | t: count: collection.products_count }}
+      </p>
+
+      {% comment %} Sort Dropdown {% endcomment %}
+      <div class="collection-page__sort">
+        <label for="sort-by" class="visually-hidden">{{ 'collections.sort_by' | t }}</label>
+        <select id="sort-by" class="collection-page__sort-select" data-sort-select>
+          {% assign sort_options = 'manual,best-selling,title-ascending,title-descending,price-ascending,price-descending,created-ascending,created-descending' | split: ',' %}
+          {% for option in sort_options %}
+            <option
+              value="{{ option }}"
+              {% if collection.sort_by == option %}selected{% endif %}
+            >
+              {{ 'collections.sort_options.' | append: option | t }}
+            </option>
+          {% endfor %}
+        </select>
+      </div>
+    </div>
+  </header>
+
+  {% comment %} Product Grid {% endcomment %}
+  {% paginate collection.products by products_per_page %}
+    <div class="collection-page__grid">
+      {% if collection.products.size > 0 %}
+        {% for product in collection.products %}
+          {% render 'product-card',
+            product: product,
+            show_vendor: show_vendor,
+            show_quick_add: show_quick_add,
+            image_ratio: image_ratio,
+            lazy_load: true,
+            card_class: 'collection-page__item'
+          %}
+        {% endfor %}
+      {% else %}
+        <div class="collection-page__empty">
+          <p>{{ 'collections.empty' | t }}</p>
+          <a href="{{ routes.all_products_collection_url }}" class="btn btn--primary">
+            {{ 'collections.all' | t }}
+          </a>
+        </div>
+      {% endif %}
+    </div>
+
+    {% comment %} Pagination {% endcomment %}
+    {% if paginate.pages > 1 %}
+      <nav class="collection-page__pagination" aria-label="Pagination">
+        <ul class="pagination">
+          {% if paginate.previous %}
+            <li>
+              <a href="{{ paginate.previous.url }}" class="pagination__link pagination__link--prev" aria-label="Previous page">
+                <svg width="16" height="16" viewBox="0 0 16 16" fill="none">
+                  <path d="M10 12L6 8l4-4" stroke="currentColor" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round"/>
+                </svg>
+              </a>
+            </li>
+          {% endif %}
+
+          {% for part in paginate.parts %}
+            <li>
+              {% if part.is_link %}
+                <a href="{{ part.url }}" class="pagination__link">{{ part.title }}</a>
+              {% elsif part.title == paginate.current_page %}
+                <span class="pagination__link pagination__link--current" aria-current="page">{{ part.title }}</span>
+              {% else %}
+                <span class="pagination__ellipsis">{{ part.title }}</span>
+              {% endif %}
+            </li>
+          {% endfor %}
+
+          {% if paginate.next %}
+            <li>
+              <a href="{{ paginate.next.url }}" class="pagination__link pagination__link--next" aria-label="Next page">
+                <svg width="16" height="16" viewBox="0 0 16 16" fill="none">
+                  <path d="M6 12l4-4-4-4" stroke="currentColor" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round"/>
+                </svg>
+              </a>
+            </li>
+          {% endif %}
+        </ul>
+      </nav>
+    {% endif %}
   {% endpaginate %}
-</div>
+</section>
+
+{% javascript %}
+  const sortSelect = document.querySelector('[data-sort-select]');
+
+  sortSelect?.addEventListener('change', function() {
+    const url = new URL(window.location.href);
+    url.searchParams.set('sort_by', this.value);
+    window.location.href = url.toString();
+  });
+{% endjavascript %}
 
 {% stylesheet %}
-  .collection-products {
+  .collection-page {
+    padding-block: var(--space-xl);
+  }
+
+  @media (min-width: 768px) {
+    .collection-page {
+      padding-block: var(--space-2xl);
+    }
+  }
+
+  /* Header */
+  .collection-page__header {
+    display: flex;
+    flex-direction: column;
+    gap: var(--space-lg);
+    margin-bottom: var(--space-2xl);
+  }
+
+  @media (min-width: 768px) {
+    .collection-page__header {
+      flex-direction: row;
+      justify-content: space-between;
+      align-items: flex-end;
+    }
+  }
+
+  .collection-page__title {
+    font-size: var(--text-2xl);
+    font-weight: 600;
+    margin-bottom: var(--space-sm);
+  }
+
+  @media (min-width: 768px) {
+    .collection-page__title {
+      font-size: var(--text-3xl);
+    }
+  }
+
+  .collection-page__description {
+    font-size: var(--text-base);
+    color: var(--color-secondary);
+    max-width: 600px;
+    line-height: 1.6;
+  }
+
+  .collection-page__meta {
+    display: flex;
+    align-items: center;
+    gap: var(--space-lg);
+    flex-shrink: 0;
+  }
+
+  .collection-page__count {
+    font-size: var(--text-sm);
+    color: var(--color-secondary);
+    white-space: nowrap;
+  }
+
+  .collection-page__sort-select {
+    padding: var(--space-sm) var(--space-lg) var(--space-sm) var(--space-md);
+    font-size: var(--text-sm);
+    border: 1px solid var(--color-border);
+    border-radius: var(--radius-sm);
+    background-color: var(--color-background);
+    cursor: pointer;
+  }
+
+  /* Grid */
+  .collection-page__grid {
     display: grid;
-    grid-template-columns: repeat(auto-fill, minmax(500px, 1fr));
+    grid-template-columns: repeat(var(--columns-mobile, 2), 1fr);
+    gap: var(--space-md) var(--space-sm);
+  }
+
+  @media (min-width: 768px) {
+    .collection-page__grid {
+      grid-template-columns: repeat(var(--columns-desktop, 4), 1fr);
+      gap: var(--space-xl) var(--space-lg);
+    }
+  }
+
+  .collection-page__empty {
+    grid-column: 1 / -1;
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    gap: var(--space-lg);
+    padding: var(--space-4xl);
+    text-align: center;
+    color: var(--color-secondary);
+  }
+
+  /* Pagination */
+  .collection-page__pagination {
+    margin-top: var(--space-3xl);
+  }
+
+  .pagination {
+    display: flex;
+    justify-content: center;
+    align-items: center;
+    gap: var(--space-xs);
+  }
+
+  .pagination__link {
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    min-width: 2.5rem;
+    height: 2.5rem;
+    padding: 0 var(--space-sm);
+    font-size: var(--text-sm);
+    text-decoration: none;
+    border: 1px solid var(--color-border);
+    border-radius: var(--radius-sm);
+    transition: background-color var(--transition-fast), border-color var(--transition-fast);
+  }
+
+  .pagination__link:hover {
+    border-color: var(--color-primary);
+  }
+
+  .pagination__link--current {
+    background-color: var(--color-primary);
+    border-color: var(--color-primary);
+    color: var(--color-background);
+  }
+
+  .pagination__ellipsis {
+    padding: 0 var(--space-sm);
+    color: var(--color-secondary);
   }
 {% endstylesheet %}
 
 {% schema %}
 {
   "name": "t:general.collection",
-  "settings": []
+  "settings": [
+    {
+      "type": "range",
+      "id": "products_per_page",
+      "min": 4,
+      "max": 24,
+      "step": 4,
+      "label": "Products per page",
+      "default": 12
+    },
+    {
+      "type": "header",
+      "content": "Layout"
+    },
+    {
+      "type": "select",
+      "id": "columns_desktop",
+      "label": "Columns on desktop",
+      "options": [
+        { "value": "3", "label": "3" },
+        { "value": "4", "label": "4" },
+        { "value": "5", "label": "5" }
+      ],
+      "default": "4"
+    },
+    {
+      "type": "select",
+      "id": "columns_mobile",
+      "label": "Columns on mobile",
+      "options": [
+        { "value": "1", "label": "1" },
+        { "value": "2", "label": "2" }
+      ],
+      "default": "2"
+    },
+    {
+      "type": "select",
+      "id": "image_ratio",
+      "label": "Image ratio",
+      "options": [
+        { "value": "portrait", "label": "Portrait (3:4)" },
+        { "value": "square", "label": "Square (1:1)" },
+        { "value": "landscape", "label": "Landscape (4:3)" }
+      ],
+      "default": "portrait"
+    },
+    {
+      "type": "header",
+      "content": "Product cards"
+    },
+    {
+      "type": "checkbox",
+      "id": "show_vendor",
+      "label": "Show vendor",
+      "default": false
+    },
+    {
+      "type": "checkbox",
+      "id": "show_quick_add",
+      "label": "Show quick add button",
+      "default": true
+    }
+  ]
 }
 {% endschema %}

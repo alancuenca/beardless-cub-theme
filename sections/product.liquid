@@ -1,50 +1,777 @@
 {% comment %}
-  This section is used in the product template to render product page with
-  media, content, and add-to-cart form.
+  Product Section
 
-  https://shopify.dev/docs/storefronts/themes/architecture/templates/product
+  Main product template section with gallery, product info, variant selection,
+  and add-to-cart functionality with AJAX support.
+  Includes metafield display for material, care instructions, and sizing.
+
+  @see https://shopify.dev/docs/storefronts/themes/architecture/templates/product
 {% endcomment %}
 
-<div class="product-images">
-  {% for image in product.images %}
-    {% render 'image', class: 'product-image', image: image %}
-  {% endfor %}
-</div>
+{% liquid
+  assign current_variant = product.selected_or_first_available_variant
+  assign featured_image = product.featured_image
 
-<div class="product-info">
-  <h1>{{ product.title }}</h1>
-  <p>{{ product.price | money }}</p>
-  <p>{{ product.description }}</p>
-</div>
+  assign material = product.metafields.custom.material
+  assign care_instructions = product.metafields.custom.care_instructions
+  assign sizing_guide = product.metafields.custom.sizing_guide
+%}
 
-<div class="product-form">
-  {% form 'product', product %}
-    {% assign current_variant = product.selected_or_first_available_variant %}
-
-    <select name="id">
-      {% for variant in product.variants %}
-        <option
-          value="{{ variant.id }}"
-          {% if variant == current_variant %}
-            selected="selected"
-          {% endif %}
+<section class="product-page" data-product-section>
+  {% comment %} Product Gallery {% endcomment %}
+  <div class="product-page__gallery">
+    <div class="product-page__main-image" data-product-main-image>
+      {% if featured_image %}
+        <img
+          src="{{ featured_image | image_url: width: 1200 }}"
+          srcset="
+            {{ featured_image | image_url: width: 600 }} 600w,
+            {{ featured_image | image_url: width: 900 }} 900w,
+            {{ featured_image | image_url: width: 1200 }} 1200w
+          "
+          sizes="(min-width: 1024px) 50vw, 100vw"
+          alt="{{ featured_image.alt | default: product.title | escape }}"
+          width="{{ featured_image.width }}"
+          height="{{ featured_image.height }}"
+          class="product-page__image"
+          loading="eager"
+          id="product-main-image"
         >
-          {{ variant.title }} - {{ variant.price | money }}
-        </option>
-      {% endfor %}
-    </select>
+      {% else %}
+        <div class="product-page__placeholder">
+          {{ 'product-1' | placeholder_svg_tag }}
+        </div>
+      {% endif %}
 
-    <input type="text" name="quantity" min="1" value="1">
+      {% if product.compare_at_price > product.price %}
+        <span class="product-page__badge">{{ 'products.on_sale' | t }}</span>
+      {% endif %}
+    </div>
 
-    <input type="submit" value="Add to cart">
-    {{ form | payment_button }}
-  {% endform %}
-</div>
+    {% if product.images.size > 1 %}
+      <div class="product-page__thumbnails" data-product-thumbnails>
+        {% for image in product.images %}
+          <button
+            type="button"
+            class="product-page__thumbnail{% if forloop.first %} is-active{% endif %}"
+            data-thumbnail
+            data-image-url="{{ image | image_url: width: 1200 }}"
+            data-image-alt="{{ image.alt | default: product.title | escape }}"
+            aria-label="View image {{ forloop.index }}"
+          >
+            <img
+              src="{{ image | image_url: width: 150 }}"
+              alt="{{ image.alt | default: product.title | escape }}"
+              width="75"
+              height="75"
+              loading="lazy"
+            >
+          </button>
+        {% endfor %}
+      </div>
+    {% endif %}
+  </div>
+
+  {% comment %} Product Info {% endcomment %}
+  <div class="product-page__info">
+    {% if product.vendor %}
+      <p class="product-page__vendor">{{ product.vendor }}</p>
+    {% endif %}
+
+    <h1 class="product-page__title">{{ product.title }}</h1>
+
+    {% render 'price', product: product, show_compare_at: true, show_unit_price: true, price_class: 'product-page__price' %}
+
+    {% if product.description != blank %}
+      <div class="product-page__description">
+        {{ product.description }}
+      </div>
+    {% endif %}
+
+    {% comment %} Metafields {% endcomment %}
+    {% if material or care_instructions or sizing_guide %}
+      <div class="product-page__metafields">
+        {% if material %}
+          <div class="product-page__meta-item">
+            <span class="product-page__meta-label">{{ 'products.material' | t }}</span>
+            <span class="product-page__meta-value">{{ material | metafield_text }}</span>
+          </div>
+        {% endif %}
+
+        {% if care_instructions %}
+          <details class="product-page__meta-details">
+            <summary class="product-page__meta-label">
+              {{ 'products.care_instructions' | t }}
+              <svg width="16" height="16" viewBox="0 0 16 16" fill="none" aria-hidden="true">
+                <path d="M4 6l4 4 4-4" stroke="currentColor" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round"/>
+              </svg>
+            </summary>
+            <div class="product-page__meta-content">
+              {{ care_instructions | metafield_text }}
+            </div>
+          </details>
+        {% endif %}
+
+        {% if sizing_guide %}
+          <details class="product-page__meta-details">
+            <summary class="product-page__meta-label">
+              {{ 'products.sizing_guide' | t }}
+              <svg width="16" height="16" viewBox="0 0 16 16" fill="none" aria-hidden="true">
+                <path d="M4 6l4 4 4-4" stroke="currentColor" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round"/>
+              </svg>
+            </summary>
+            <div class="product-page__meta-content">
+              {{ sizing_guide | metafield_text }}
+            </div>
+          </details>
+        {% endif %}
+      </div>
+    {% endif %}
+
+    {% comment %} Product Form {% endcomment %}
+    {% form 'product', product, class: 'product-page__form', data-product-form: '', id: 'product-form' %}
+      <input type="hidden" name="id" value="{{ current_variant.id }}" data-variant-id>
+
+      {% comment %} Variant Options {% endcomment %}
+      {% if product.has_only_default_variant == false %}
+        <div class="product-page__options">
+          {% for option in product.options_with_values %}
+            <div class="product-page__option">
+              <label
+                class="product-page__option-label"
+                for="option-{{ option.name | handleize }}"
+              >
+                {{ option.name }}
+              </label>
+
+              {% if option.values.size > 4 %}
+                {% comment %} Use dropdown for many options {% endcomment %}
+                <select
+                  id="option-{{ option.name | handleize }}"
+                  class="product-page__option-select"
+                  data-option-select
+                  data-option-index="{{ forloop.index0 }}"
+                >
+                  {% for value in option.values %}
+                    <option
+                      value="{{ value | escape }}"
+                      {% if option.selected_value == value %}selected{% endif %}
+                    >
+                      {{ value }}
+                    </option>
+                  {% endfor %}
+                </select>
+              {% else %}
+                {% comment %} Use radio buttons for few options {% endcomment %}
+                <div class="product-page__option-values" role="radiogroup" aria-label="{{ option.name }}">
+                  {% for value in option.values %}
+                    {% assign option_id = 'option-' | append: option.name | handleize | append: '-' | append: forloop.index %}
+                    <input
+                      type="radio"
+                      id="{{ option_id }}"
+                      name="option-{{ option.name | handleize }}"
+                      value="{{ value | escape }}"
+                      data-option-radio
+                      data-option-index="{{ forloop.index0 }}"
+                      {% if option.selected_value == value %}checked{% endif %}
+                      class="visually-hidden"
+                    >
+                    <label for="{{ option_id }}" class="product-page__option-swatch">
+                      {{ value }}
+                    </label>
+                  {% endfor %}
+                </div>
+              {% endif %}
+            </div>
+          {% endfor %}
+        </div>
+      {% endif %}
+
+      {% comment %} Quantity {% endcomment %}
+      <div class="product-page__quantity">
+        <label for="quantity" class="product-page__option-label">{{ 'products.quantity' | t }}</label>
+        <div class="product-page__quantity-selector">
+          <button
+            type="button"
+            class="product-page__qty-btn"
+            data-quantity-decrement
+            aria-label="{{ 'cart.decrease_quantity' | t }}"
+          >
+            <svg width="16" height="16" viewBox="0 0 16 16" fill="none">
+              <path d="M3 8h10" stroke="currentColor" stroke-width="1.5" stroke-linecap="round"/>
+            </svg>
+          </button>
+          <input
+            type="number"
+            id="quantity"
+            name="quantity"
+            value="1"
+            min="1"
+            class="product-page__qty-input"
+            data-quantity-input
+          >
+          <button
+            type="button"
+            class="product-page__qty-btn"
+            data-quantity-increment
+            aria-label="{{ 'cart.increase_quantity' | t }}"
+          >
+            <svg width="16" height="16" viewBox="0 0 16 16" fill="none">
+              <path d="M8 3v10M3 8h10" stroke="currentColor" stroke-width="1.5" stroke-linecap="round"/>
+            </svg>
+          </button>
+        </div>
+      </div>
+
+      {% comment %} Add to Cart Button {% endcomment %}
+      <div class="product-page__actions">
+        <button
+          type="submit"
+          class="btn btn--primary btn--lg btn--full product-page__add-btn"
+          data-add-to-cart
+          {% unless current_variant.available %}disabled{% endunless %}
+        >
+          <span data-add-to-cart-text>
+            {% if current_variant.available %}
+              {{ 'products.add_to_cart' | t }}
+            {% else %}
+              {{ 'products.sold_out' | t }}
+            {% endif %}
+          </span>
+          <span class="product-page__add-loading" aria-hidden="true">
+            <span class="spinner"></span>
+          </span>
+        </button>
+
+        {{ form | payment_button }}
+      </div>
+    {% endform %}
+
+    {% comment %} Variant JSON for JavaScript {% endcomment %}
+    <script type="application/json" data-product-variants>
+      {{ product.variants | json }}
+    </script>
+  </div>
+</section>
+
+{% javascript %}
+  class ProductForm {
+    constructor(section) {
+      this.section = section;
+      this.form = section.querySelector('[data-product-form]');
+      this.variantIdInput = section.querySelector('[data-variant-id]');
+      this.addToCartBtn = section.querySelector('[data-add-to-cart]');
+      this.addToCartText = section.querySelector('[data-add-to-cart-text]');
+      this.mainImage = section.querySelector('#product-main-image');
+      this.thumbnails = section.querySelectorAll('[data-thumbnail]');
+      this.quantityInput = section.querySelector('[data-quantity-input]');
+
+      this.variants = JSON.parse(section.querySelector('[data-product-variants]')?.textContent || '[]');
+      this.currentVariant = this.variants.find(v => v.id === parseInt(this.variantIdInput?.value));
+
+      this.init();
+    }
+
+    init() {
+      // Option change handlers
+      this.section.querySelectorAll('[data-option-select]').forEach(select => {
+        select.addEventListener('change', () => this.onOptionChange());
+      });
+
+      this.section.querySelectorAll('[data-option-radio]').forEach(radio => {
+        radio.addEventListener('change', () => this.onOptionChange());
+      });
+
+      // Thumbnail clicks
+      this.thumbnails.forEach(thumb => {
+        thumb.addEventListener('click', () => this.onThumbnailClick(thumb));
+      });
+
+      // Quantity buttons
+      this.section.querySelector('[data-quantity-decrement]')?.addEventListener('click', () => {
+        this.updateQuantity(-1);
+      });
+
+      this.section.querySelector('[data-quantity-increment]')?.addEventListener('click', () => {
+        this.updateQuantity(1);
+      });
+
+      // Form submission
+      this.form?.addEventListener('submit', (e) => this.onFormSubmit(e));
+    }
+
+    getSelectedOptions() {
+      const options = [];
+
+      this.section.querySelectorAll('[data-option-select]').forEach(select => {
+        options[select.dataset.optionIndex] = select.value;
+      });
+
+      this.section.querySelectorAll('[data-option-radio]:checked').forEach(radio => {
+        options[radio.dataset.optionIndex] = radio.value;
+      });
+
+      return options;
+    }
+
+    onOptionChange() {
+      const options = this.getSelectedOptions();
+
+      // Find matching variant
+      const variant = this.variants.find(v => {
+        return options.every((opt, i) => v.options[i] === opt);
+      });
+
+      if (variant) {
+        this.currentVariant = variant;
+        this.updateVariant(variant);
+      }
+    }
+
+    updateVariant(variant) {
+      // Update hidden input
+      if (this.variantIdInput) {
+        this.variantIdInput.value = variant.id;
+      }
+
+      // Update URL
+      const url = new URL(window.location.href);
+      url.searchParams.set('variant', variant.id);
+      window.history.replaceState({}, '', url);
+
+      // Update button state
+      if (variant.available) {
+        this.addToCartBtn.disabled = false;
+        this.addToCartText.textContent = 'Add to cart';
+      } else {
+        this.addToCartBtn.disabled = true;
+        this.addToCartText.textContent = 'Sold out';
+      }
+
+      // Update price (would need price element references)
+      // This triggers a custom event for other components to listen to
+      document.dispatchEvent(new CustomEvent('variant:change', {
+        detail: { variant }
+      }));
+    }
+
+    onThumbnailClick(thumb) {
+      // Update active state
+      this.thumbnails.forEach(t => t.classList.remove('is-active'));
+      thumb.classList.add('is-active');
+
+      // Update main image
+      if (this.mainImage) {
+        this.mainImage.src = thumb.dataset.imageUrl;
+        this.mainImage.alt = thumb.dataset.imageAlt;
+      }
+    }
+
+    updateQuantity(change) {
+      const current = parseInt(this.quantityInput.value) || 1;
+      const newValue = Math.max(1, current + change);
+      this.quantityInput.value = newValue;
+    }
+
+    async onFormSubmit(e) {
+      e.preventDefault();
+
+      if (!this.currentVariant?.available) return;
+
+      // Show loading state
+      this.addToCartBtn.classList.add('loading');
+      this.addToCartBtn.disabled = true;
+
+      try {
+        const formData = new FormData(this.form);
+
+        const response = await fetch('/cart/add.js', {
+          method: 'POST',
+          body: formData
+        });
+
+        if (!response.ok) {
+          throw new Error('Failed to add item');
+        }
+
+        // Trigger cart update
+        document.dispatchEvent(new CustomEvent('cart:refresh'));
+
+        // Open cart drawer
+        document.querySelector('[data-cart-toggle]')?.click();
+
+      } catch (error) {
+        console.error('Add to cart error:', error);
+        alert('Could not add item to cart. Please try again.');
+      } finally {
+        this.addToCartBtn.classList.remove('loading');
+        this.addToCartBtn.disabled = false;
+      }
+    }
+  }
+
+  // Initialize
+  document.querySelectorAll('[data-product-section]').forEach(section => {
+    new ProductForm(section);
+  });
+{% endjavascript %}
+
+{% stylesheet %}
+  .product-page {
+    display: grid;
+    gap: var(--space-xl);
+    padding-block: var(--space-xl);
+  }
+
+  @media (min-width: 1024px) {
+    .product-page {
+      grid-template-columns: 1fr 1fr;
+      gap: var(--space-3xl);
+      padding-block: var(--space-2xl);
+      align-items: start;
+    }
+  }
+
+  /* Gallery */
+  .product-page__gallery {
+    display: flex;
+    flex-direction: column;
+    gap: var(--space-md);
+  }
+
+  @media (min-width: 1024px) {
+    .product-page__gallery {
+      position: sticky;
+      top: calc(5rem + var(--space-xl));
+    }
+  }
+
+  .product-page__main-image {
+    position: relative;
+    aspect-ratio: 3 / 4;
+    overflow: hidden;
+    border-radius: var(--radius-lg);
+    background-color: var(--color-muted);
+  }
+
+  .product-page__image {
+    width: 100%;
+    height: 100%;
+    object-fit: cover;
+    transition: opacity var(--transition-base);
+  }
+
+  .product-page__placeholder {
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    width: 100%;
+    height: 100%;
+  }
+
+  .product-page__placeholder svg {
+    width: 40%;
+    opacity: 0.3;
+  }
+
+  .product-page__badge {
+    position: absolute;
+    top: var(--space-md);
+    left: var(--space-md);
+    padding: var(--space-xs) var(--space-md);
+    font-size: var(--text-sm);
+    font-weight: 500;
+    background-color: var(--color-accent);
+    color: white;
+    border-radius: var(--radius-sm);
+  }
+
+  .product-page__thumbnails {
+    display: flex;
+    gap: var(--space-sm);
+    overflow-x: auto;
+    padding-bottom: var(--space-sm);
+    -webkit-overflow-scrolling: touch;
+  }
+
+  .product-page__thumbnail {
+    flex-shrink: 0;
+    width: 75px;
+    height: 75px;
+    border-radius: var(--radius-sm);
+    overflow: hidden;
+    border: 2px solid transparent;
+    transition: border-color var(--transition-fast);
+    cursor: pointer;
+  }
+
+  .product-page__thumbnail:hover,
+  .product-page__thumbnail.is-active {
+    border-color: var(--color-primary);
+  }
+
+  .product-page__thumbnail img {
+    width: 100%;
+    height: 100%;
+    object-fit: cover;
+  }
+
+  /* Info */
+  .product-page__info {
+    display: flex;
+    flex-direction: column;
+    gap: var(--space-lg);
+  }
+
+  .product-page__vendor {
+    font-size: var(--text-sm);
+    font-weight: 500;
+    text-transform: uppercase;
+    letter-spacing: 0.1em;
+    color: var(--color-accent);
+  }
+
+  .product-page__title {
+    font-size: var(--text-2xl);
+    font-weight: 600;
+    line-height: 1.2;
+  }
+
+  @media (min-width: 768px) {
+    .product-page__title {
+      font-size: var(--text-3xl);
+    }
+  }
+
+  .product-page__price {
+    font-size: var(--text-xl);
+  }
+
+  .product-page__description {
+    color: var(--color-secondary);
+    line-height: 1.7;
+  }
+
+  .product-page__description p + p {
+    margin-top: var(--space-md);
+  }
+
+  /* Metafields */
+  .product-page__metafields {
+    display: flex;
+    flex-direction: column;
+    gap: var(--space-sm);
+    padding: var(--space-lg);
+    background-color: var(--color-muted);
+    border-radius: var(--radius-md);
+  }
+
+  .product-page__meta-item {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    gap: var(--space-md);
+  }
+
+  .product-page__meta-label {
+    display: flex;
+    align-items: center;
+    gap: var(--space-sm);
+    font-size: var(--text-sm);
+    font-weight: 500;
+  }
+
+  .product-page__meta-value {
+    font-size: var(--text-sm);
+    color: var(--color-secondary);
+  }
+
+  .product-page__meta-details {
+    border-top: 1px solid var(--color-border);
+    padding-top: var(--space-sm);
+  }
+
+  .product-page__meta-details summary {
+    list-style: none;
+    cursor: pointer;
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+  }
+
+  .product-page__meta-details summary::-webkit-details-marker {
+    display: none;
+  }
+
+  .product-page__meta-details[open] summary svg {
+    transform: rotate(180deg);
+  }
+
+  .product-page__meta-content {
+    padding-top: var(--space-sm);
+    font-size: var(--text-sm);
+    color: var(--color-secondary);
+    line-height: 1.6;
+  }
+
+  /* Form */
+  .product-page__form {
+    display: flex;
+    flex-direction: column;
+    gap: var(--space-lg);
+  }
+
+  .product-page__options {
+    display: flex;
+    flex-direction: column;
+    gap: var(--space-lg);
+  }
+
+  .product-page__option-label {
+    display: block;
+    font-size: var(--text-sm);
+    font-weight: 500;
+    margin-bottom: var(--space-sm);
+  }
+
+  .product-page__option-select {
+    width: 100%;
+    padding: var(--space-md);
+    font-size: var(--text-base);
+    border: 1px solid var(--color-border);
+    border-radius: var(--radius-sm);
+    background-color: var(--color-background);
+    cursor: pointer;
+  }
+
+  .product-page__option-values {
+    display: flex;
+    flex-wrap: wrap;
+    gap: var(--space-sm);
+  }
+
+  .product-page__option-swatch {
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    min-width: 3rem;
+    padding: var(--space-sm) var(--space-md);
+    font-size: var(--text-sm);
+    border: 1px solid var(--color-border);
+    border-radius: var(--radius-sm);
+    cursor: pointer;
+    transition: border-color var(--transition-fast), background-color var(--transition-fast);
+  }
+
+  .product-page__option-swatch:hover {
+    border-color: var(--color-primary);
+  }
+
+  input:checked + .product-page__option-swatch {
+    border-color: var(--color-primary);
+    background-color: var(--color-primary);
+    color: var(--color-background);
+  }
+
+  /* Quantity */
+  .product-page__quantity-selector {
+    display: inline-flex;
+    align-items: center;
+    border: 1px solid var(--color-border);
+    border-radius: var(--radius-sm);
+  }
+
+  .product-page__qty-btn {
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    width: 3rem;
+    height: 3rem;
+    transition: background-color var(--transition-fast);
+  }
+
+  .product-page__qty-btn:hover {
+    background-color: var(--color-muted);
+  }
+
+  .product-page__qty-input {
+    width: 4rem;
+    height: 3rem;
+    text-align: center;
+    border: none;
+    border-left: 1px solid var(--color-border);
+    border-right: 1px solid var(--color-border);
+    font-size: var(--text-base);
+    -moz-appearance: textfield;
+  }
+
+  .product-page__qty-input::-webkit-inner-spin-button,
+  .product-page__qty-input::-webkit-outer-spin-button {
+    -webkit-appearance: none;
+  }
+
+  /* Actions */
+  .product-page__actions {
+    display: flex;
+    flex-direction: column;
+    gap: var(--space-sm);
+  }
+
+  .product-page__add-btn {
+    position: relative;
+  }
+
+  .product-page__add-loading {
+    position: absolute;
+    inset: 0;
+    display: none;
+    align-items: center;
+    justify-content: center;
+  }
+
+  .product-page__add-btn.loading [data-add-to-cart-text] {
+    visibility: hidden;
+  }
+
+  .product-page__add-btn.loading .product-page__add-loading {
+    display: flex;
+  }
+
+  /* Shopify dynamic checkout buttons */
+  .shopify-payment-button {
+    margin-top: var(--space-xs);
+  }
+
+  .shopify-payment-button__button {
+    border-radius: var(--radius-sm) !important;
+    min-height: 3.5rem;
+  }
+{% endstylesheet %}
 
 {% schema %}
 {
   "name": "t:general.product",
-  "settings": [],
+  "settings": [
+    {
+      "type": "checkbox",
+      "id": "show_vendor",
+      "label": "Show vendor",
+      "default": true
+    },
+    {
+      "type": "checkbox",
+      "id": "show_metafields",
+      "label": "Show product metafields",
+      "info": "Display material, care instructions, and sizing guide if available.",
+      "default": true
+    },
+    {
+      "type": "checkbox",
+      "id": "enable_sticky_gallery",
+      "label": "Enable sticky gallery",
+      "default": true
+    }
+  ],
   "disabled_on": {
     "groups": ["header", "footer"]
   }

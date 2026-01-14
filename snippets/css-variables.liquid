@@ -1,18 +1,39 @@
+{% doc %}
+  Renders CSS custom properties from theme settings.
+
+  Outputs font-face declarations and CSS variables for typography,
+  colors, layout, and other theme-level design tokens.
+
+  @example
+  {% render 'css-variables' %}
+{% enddoc %}
+
 {% style %}
-  {% # Loads all font variantions with display: swap %}
+  /* Font face declarations with display: swap for performance */
   {{ settings.type_primary_font | font_face: font_display: 'swap' }}
   {{ settings.type_primary_font | font_modify: 'weight', 'bold' | font_face: font_display: 'swap' }}
   {{ settings.type_primary_font | font_modify: 'weight', 'bold' | font_modify: 'style', 'italic' | font_face: font_display: 'swap' }}
   {{ settings.type_primary_font | font_modify: 'style', 'italic' | font_face: font_display: 'swap' }}
 
   :root {
+    /* Typography */
     --font-primary--family: {{ settings.type_primary_font.family }}, {{ settings.type_primary_font.fallback_families }};
     --font-primary--style: {{ settings.type_primary_font.style }};
     --font-primary--weight: {{ settings.type_primary_font.weight }};
+
+    /* Layout */
     --page-width: {{ settings.max_page_width }};
     --page-margin: {{ settings.min_page_margin }}px;
+
+    /* Colors - From Theme Settings */
     --color-background: {{ settings.background_color }};
     --color-foreground: {{ settings.foreground_color }};
+
+    /* Border Radius */
     --style-border-radius-inputs: {{ settings.input_corner_radius }}px;
+
+    /* Computed Colors */
+    --color-background-rgb: {{ settings.background_color | color_extract: 'red' }}, {{ settings.background_color | color_extract: 'green' }}, {{ settings.background_color | color_extract: 'blue' }};
+    --color-foreground-rgb: {{ settings.foreground_color | color_extract: 'red' }}, {{ settings.foreground_color | color_extract: 'green' }}, {{ settings.foreground_color | color_extract: 'blue' }};
   }
 {% endstyle %}
