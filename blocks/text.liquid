@@ -10,7 +10,7 @@
   style="--text-align: {{ block.settings.alignment }}"
   {{ block.shopify_attributes }}
 >
-  {{ block.settings.text }}
+  {{ block.settings.text | escape }}
 </div>
 
 {% stylesheet %}

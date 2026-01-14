@@ -26,7 +26,7 @@
   {% comment %} Collection Header {% endcomment %}
   <header class="collection-page__header">
     <div class="collection-page__title-wrap">
-      <h1 class="collection-page__title">{{ collection.title }}</h1>
+      <h1 class="collection-page__title">{{ collection.title | escape }}</h1>
       {% if collection.description != blank %}
         <div class="collection-page__description">
           {{ collection.description }}
@@ -43,13 +43,16 @@
       <div class="collection-page__sort">
         <label for="sort-by" class="visually-hidden">{{ 'collections.sort_by' | t }}</label>
         <select id="sort-by" class="collection-page__sort-select" data-sort-select>
-          {% assign sort_options = 'manual,best-selling,title-ascending,title-descending,price-ascending,price-descending,created-ascending,created-descending' | split: ',' %}
+          {% assign sort_options = 'manual:collections.sort_options.manual|best-selling:collections.sort_options.best-selling|title-ascending:collections.sort_options.title-ascending|title-descending:collections.sort_options.title-descending|price-ascending:collections.sort_options.price-ascending|price-descending:collections.sort_options.price-descending|created-ascending:collections.sort_options.created-ascending|created-descending:collections.sort_options.created-descending' | split: '|' %}
           {% for option in sort_options %}
+            {% assign pair = option | split: ':' %}
+            {% assign value = pair[0] %}
+            {% assign label_key = pair[1] %}
             <option
-              value="{{ option }}"
-              {% if collection.sort_by == option %}selected{% endif %}
+              value="{{ value }}"
+              {% if collection.sort_by == value %}selected{% endif %}
             >
-              {{ 'collections.sort_options.' | append: option | t }}
+              {{ label_key | t }}
             </option>
           {% endfor %}
         </select>
@@ -83,11 +86,11 @@
 
     {% comment %} Pagination {% endcomment %}
     {% if paginate.pages > 1 %}
-      <nav class="collection-page__pagination" aria-label="Pagination">
+      <nav class="collection-page__pagination" aria-label="{{ 'general.pagination' | t }}">
         <ul class="pagination">
           {% if paginate.previous %}
             <li>
-              <a href="{{ paginate.previous.url }}" class="pagination__link pagination__link--prev" aria-label="Previous page">
+              <a href="{{ paginate.previous.url }}" class="pagination__link pagination__link--prev" aria-label="{{ 'general.previous_page' | t }}">
                 <svg width="16" height="16" viewBox="0 0 16 16" fill="none">
                   <path d="M10 12L6 8l4-4" stroke="currentColor" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round"/>
                 </svg>
@@ -109,7 +112,7 @@
 
           {% if paginate.next %}
             <li>
-              <a href="{{ paginate.next.url }}" class="pagination__link pagination__link--next" aria-label="Next page">
+              <a href="{{ paginate.next.url }}" class="pagination__link pagination__link--next" aria-label="{{ 'general.next_page' | t }}">
                 <svg width="16" height="16" viewBox="0 0 16 16" fill="none">
                   <path d="M6 12l4-4-4-4" stroke="currentColor" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round"/>
                 </svg>
@@ -277,17 +280,17 @@
       "min": 4,
       "max": 24,
       "step": 4,
-      "label": "Products per page",
+      "label": "t:sections.collection.products_per_page",
       "default": 12
     },
     {
       "type": "header",
-      "content": "Layout"
+      "content": "t:sections.collection.layout_heading"
     },
     {
       "type": "select",
       "id": "columns_desktop",
-      "label": "Columns on desktop",
+      "label": "t:sections.collection.columns_desktop",
       "options": [
         { "value": "3", "label": "3" },
         { "value": "4", "label": "4" },
@@ -298,7 +301,7 @@
     {
       "type": "select",
       "id": "columns_mobile",
-      "label": "Columns on mobile",
+      "label": "t:sections.collection.columns_mobile",
       "options": [
         { "value": "1", "label": "1" },
         { "value": "2", "label": "2" }
@@ -308,7 +311,7 @@
     {
       "type": "select",
       "id": "image_ratio",
-      "label": "Image ratio",
+      "label": "t:sections.collection.image_ratio",
       "options": [
         { "value": "portrait", "label": "Portrait (3:4)" },
         { "value": "square", "label": "Square (1:1)" },
@@ -318,18 +321,18 @@
     },
     {
       "type": "header",
-      "content": "Product cards"
+      "content": "t:sections.collection.product_cards_heading"
     },
     {
       "type": "checkbox",
       "id": "show_vendor",
-      "label": "Show vendor",
+      "label": "t:sections.collection.show_vendor",
       "default": false
     },
     {
       "type": "checkbox",
       "id": "show_quick_add",
-      "label": "Show quick add button",
+      "label": "t:sections.collection.show_quick_add",
       "default": true
     }
   ]

@@ -5,6 +5,14 @@
   Mobile-first design with hamburger menu for smaller screens.
 {% endcomment %}
 
+{% liquid
+  assign logo_width = section.settings.logo_width | default: 100
+  assign logo_width_2x = logo_width | times: 2
+  if section.settings.logo
+    assign logo_height = section.settings.logo.height | times: logo_width | divided_by: section.settings.logo.width | round
+  endif
+%}
+
 <header class="header" data-header style="--logo-text-size: {{ section.settings.logo_text_size }}px;">
   <div class="header__inner">
     {% comment %} Mobile menu toggle {% endcomment %}
@@ -30,11 +38,11 @@
           <span class="header__logo-text">{{ section.settings.logo_text | escape }}</span>
         {% elsif section.settings.logo %}
           <img
-            src="{{ section.settings.logo | image_url: width: 200 }}"
-            srcset="{{ section.settings.logo | image_url: width: 200 }} 1x, {{ section.settings.logo | image_url: width: 400 }} 2x"
-            alt="{{ shop.name }}"
-            width="{{ section.settings.logo_width | default: 100 }}"
-            height="auto"
+            src="{{ section.settings.logo | image_url: width: logo_width }}"
+            srcset="{{ section.settings.logo | image_url: width: logo_width }} 1x, {{ section.settings.logo | image_url: width: logo_width_2x }} 2x"
+            alt="{{ shop.name | escape }}"
+            width="{{ logo_width }}"
+            height="{{ logo_height }}"
             loading="eager"
           >
         {% else %}

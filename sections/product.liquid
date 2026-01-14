@@ -17,7 +17,13 @@
   assign sizing_guide = product.metafields.custom.sizing_guide
 %}
 
-<section class="product-page" data-product-section>
+<section
+  class="product-page"
+  data-product-section
+  data-text-add="{{ 'products.add_to_cart' | t | escape }}"
+  data-text-sold-out="{{ 'products.sold_out' | t | escape }}"
+  data-text-add-error="{{ 'cart.add_error' | t | escape }}"
+>
   {% comment %} Product Gallery {% endcomment %}
   <div class="product-page__gallery">
     <div class="product-page__main-image" data-product-main-image>
@@ -57,7 +63,7 @@
             data-thumbnail
             data-image-url="{{ image | image_url: width: 1200 }}"
             data-image-alt="{{ image.alt | default: product.title | escape }}"
-            aria-label="View image {{ forloop.index }}"
+            aria-label="{{ 'products.view_image' | t: index: forloop.index }}"
           >
             <img
               src="{{ image | image_url: width: 150 }}"
@@ -75,10 +81,10 @@
   {% comment %} Product Info {% endcomment %}
   <div class="product-page__info">
     {% if product.vendor %}
-      <p class="product-page__vendor">{{ product.vendor }}</p>
+      <p class="product-page__vendor">{{ product.vendor | escape }}</p>
     {% endif %}
 
-    <h1 class="product-page__title">{{ product.title }}</h1>
+    <h1 class="product-page__title">{{ product.title | escape }}</h1>
 
     {% render 'price', product: product, show_compare_at: true, show_unit_price: true, price_class: 'product-page__price' %}
 
@@ -141,7 +147,7 @@
                 class="product-page__option-label"
                 for="option-{{ option.name | handleize }}"
               >
-                {{ option.name }}
+                {{ option.name | escape }}
               </label>
 
               {% if option.values.size > 4 %}
@@ -157,7 +163,7 @@
                       value="{{ value | escape }}"
                       {% if option.selected_value == value %}selected{% endif %}
                     >
-                      {{ value }}
+                      {{ value | escape }}
                     </option>
                   {% endfor %}
                 </select>
@@ -177,7 +183,7 @@
                       class="visually-hidden"
                     >
                     <label for="{{ option_id }}" class="product-page__option-swatch">
-                      {{ value }}
+                      {{ value | escape }}
                     </label>
                   {% endfor %}
                 </div>
@@ -268,6 +274,9 @@
 
       this.variants = JSON.parse(section.querySelector('[data-product-variants]')?.textContent || '[]');
       this.currentVariant = this.variants.find(v => v.id === parseInt(this.variantIdInput?.value));
+      this.textAdd = section.dataset.textAdd || '';
+      this.textSoldOut = section.dataset.textSoldOut || '';
+      this.textAddError = section.dataset.textAddError || '';
 
       this.init();
     }
@@ -342,10 +351,10 @@
       // Update button state
       if (variant.available) {
         this.addToCartBtn.disabled = false;
-        this.addToCartText.textContent = 'Add to cart';
+        this.addToCartText.textContent = this.textAdd;
       } else {
         this.addToCartBtn.disabled = true;
-        this.addToCartText.textContent = 'Sold out';
+        this.addToCartText.textContent = this.textSoldOut;
       }
 
       // Update price (would need price element references)
@@ -402,7 +411,9 @@
 
       } catch (error) {
         console.error('Add to cart error:', error);
-        alert('Could not add item to cart. Please try again.');
+        if (this.textAddError) {
+          alert(this.textAddError);
+        }
       } finally {
         this.addToCartBtn.classList.remove('loading');
         this.addToCartBtn.disabled = false;
@@ -702,6 +713,7 @@
     border-left: 1px solid var(--color-border);
     border-right: 1px solid var(--color-border);
     font-size: var(--text-base);
+    appearance: textfield;
     -moz-appearance: textfield;
   }
 

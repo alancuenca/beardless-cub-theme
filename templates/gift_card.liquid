@@ -42,7 +42,8 @@
 
         <p>
           {% if settings.logo %}
-            {{ settings.logo | image_url: width: 300 | image_tag: alt: shop.name }}
+            {% assign logo_alt = shop.name | escape %}
+            {{ settings.logo | image_url: width: 300 | image_tag: alt: logo_alt }}
           {% else %}
             <img
               src="{{ 'gift-card/card.svg' | shopify_asset_url }}"
@@ -53,7 +54,7 @@
           {% endif %}
         </p>
 
-        <h2>{{ shop.name }}</h2>
+        <h2>{{ shop.name | escape }}</h2>
         <p>{{ 'gift_card.use_at_checkout' | t }}</p>
         <p>{{ gift_card.code | format_code }}</p>
 

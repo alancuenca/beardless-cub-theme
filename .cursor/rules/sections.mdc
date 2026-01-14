@@ -80,5 +80,13 @@ Every section must include:
 - Scope CSS variables to section
 - Use `container-queries` for responsive behavior
 
-[section-example.liquid](mdc:.cursor/rules/examples/section-example.liquid)
+## Theme editor QoL
 
+- Use `t:` keys for all schema labels, names, and info fields.
+- Provide sensible defaults for `link_list` settings (header: `main-menu`, footer: `footer`).
+- Provide text fallback options for logos when image is not set.
+- Avoid hard-coded UI strings in markup; use `{{ 'key' | t }}`.
+- Ensure icon-only buttons have `aria-label` values.
+- Dialog/drawer sections should include `role="dialog"` and `aria-hidden` toggles.
+
+[section-example.liquid](mdc:.cursor/rules/examples/section-example.liquid)

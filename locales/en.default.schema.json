@@ -14,7 +14,14 @@
     "text": "Text",
     "group": "Group",
     "column": "Column",
-    "row": "Row"
+    "row": "Row",
+    "collections_grid": "Collections grid",
+    "404": "404",
+    "article": "Article",
+    "blog": "Blog",
+    "page": "Page",
+    "password": "Password",
+    "search": "Search"
   },
   "labels": {
     "page_width": "Page width",
@@ -34,7 +41,9 @@
     "button_link": "Button link",
     "image": "Image",
     "collection": "Collection",
-    "product": "Product"
+    "product": "Product",
+    "grid_item_width": "Grid item width",
+    "grid_gap": "Grid gap"
   },
   "options": {
     "page_width": {
@@ -73,6 +82,10 @@
     "layout": {
       "image_left": "Image left",
       "image_right": "Image right"
+    },
+    "size": {
+      "small": "Small",
+      "large": "Large"
     }
   },
   "sections": {
@@ -88,7 +101,9 @@
       "button_text": "Button text",
       "button_link": "Button link",
       "content_position": "Content position",
-      "text_color": "Text color"
+      "text_color": "Text color",
+      "content_heading": "Content",
+      "layout_heading": "Layout"
     },
     "featured_collection": {
       "name": "Featured collection",
@@ -99,7 +114,23 @@
       "columns_mobile": "Columns on mobile",
       "show_vendor": "Show vendor",
       "show_quick_add": "Show quick add button",
-      "view_all": "Show view all link"
+      "view_all": "Show view all link",
+      "layout_heading": "Layout",
+      "image_ratio": "Image ratio",
+      "image_ratio_portrait": "Portrait (3:4)",
+      "image_ratio_square": "Square (1:1)",
+      "image_ratio_landscape": "Landscape (4:3)",
+      "product_card_heading": "Product card"
+    },
+    "collection": {
+      "products_per_page": "Products per page",
+      "layout_heading": "Layout",
+      "columns_desktop": "Columns on desktop",
+      "columns_mobile": "Columns on mobile",
+      "image_ratio": "Image ratio",
+      "product_cards_heading": "Product cards",
+      "show_vendor": "Show vendor",
+      "show_quick_add": "Show quick add button"
     },
     "product_highlight": {
       "name": "Product highlight",
@@ -128,7 +159,32 @@
       "menu": "Navigation menu"
     },
     "footer": {
-      "name": "Footer"
+      "name": "Footer",
+      "brand_heading": "Brand",
+      "logo": "Logo",
+      "about_text": "About text",
+      "social_heading": "Social",
+      "show_social": "Show social links",
+      "social_instagram": "Instagram",
+      "social_facebook": "Facebook",
+      "social_pinterest": "Pinterest",
+      "social_tiktok": "TikTok",
+      "navigation_heading": "Navigation",
+      "menu_1_title": "Menu 1 title",
+      "menu_1": "Menu 1",
+      "menu_2_title": "Menu 2 title",
+      "menu_2": "Menu 2",
+      "newsletter_heading": "Newsletter",
+      "show_newsletter": "Show newsletter signup",
+      "newsletter_title": "Title",
+      "newsletter_text": "Description",
+      "bottom_heading": "Bottom bar",
+      "show_payment_icons": "Show payment icons"
+    },
+    "hello_world": {
+      "name": "Hello world",
+      "preset_name": "Hello world template",
+      "category": "Demo"
     },
     "cart_drawer": {
       "name": "Cart drawer"

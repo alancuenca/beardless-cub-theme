@@ -94,15 +94,15 @@
         >
           <div class="hero__content-inner">
             {% if block.settings.subheading != blank %}
-              <p class="hero__subheading">{{ block.settings.subheading }}</p>
+              <p class="hero__subheading">{{ block.settings.subheading | escape }}</p>
             {% endif %}
 
             {% if block.settings.heading != blank %}
-              <h2 class="hero__heading">{{ block.settings.heading }}</h2>
+              <h2 class="hero__heading">{{ block.settings.heading | escape }}</h2>
             {% endif %}
 
             {% if block.settings.text != blank %}
-              <p class="hero__text">{{ block.settings.text }}</p>
+              <p class="hero__text">{{ block.settings.text | escape | newline_to_br }}</p>
             {% endif %}
 
             {% if block.settings.button_text != blank and block.settings.button_link != blank %}
@@ -110,7 +110,7 @@
                 href="{{ block.settings.button_link }}"
                 class="btn {% if text_color == 'light' %}btn--secondary{% else %}btn--primary{% endif %} btn--lg hero__button"
               >
-                {{ block.settings.button_text }}
+                {{ block.settings.button_text | escape }}
               </a>
             {% endif %}
           </div>
@@ -121,7 +121,7 @@
 
   {% comment %} Navigation {% endcomment %}
   {% if slide_count > 1 %}
-    <nav class="hero__nav" aria-label="Slide navigation">
+    <nav class="hero__nav" aria-label="{{ 'sections.hero.navigation_label' | t }}">
       <button
         type="button"
         class="hero__nav-btn hero__nav-btn--prev"
@@ -641,7 +641,7 @@
         },
         {
           "type": "header",
-          "content": "Content"
+          "content": "t:sections.hero.content_heading"
         },
         {
           "type": "text",
@@ -674,7 +674,7 @@
         },
         {
           "type": "header",
-          "content": "Layout"
+          "content": "t:sections.hero.layout_heading"
         },
         {
           "type": "select",

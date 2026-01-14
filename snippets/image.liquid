@@ -42,7 +42,7 @@
 <{{ wrapper }}
   class="image {{ class }}"
   {% if url %}
-    href="{{ url }}"
+    href="{{ url | escape }}"
   {% endif %}
 >
   {{ image | image_url: width: width, height: height, crop: crop | image_tag }}

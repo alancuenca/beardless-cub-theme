@@ -10,7 +10,19 @@
     "loading": "Loading...",
     "subscribe": "Subscribe",
     "subscribed": "Thanks for subscribing!",
-    "all_rights_reserved": "All rights reserved."
+    "all_rights_reserved": "All rights reserved.",
+    "pagination": "Pagination",
+    "previous_page": "Previous page",
+    "next_page": "Next page"
+  },
+  "social": {
+    "instagram": "Instagram",
+    "facebook": "Facebook",
+    "pinterest": "Pinterest",
+    "tiktok": "TikTok"
+  },
+  "footer": {
+    "newsletter_default": "Newsletter"
   },
   "404": {
     "title": "Page not found",
@@ -40,7 +52,8 @@
     "decrease_quantity": "Decrease quantity",
     "increase_quantity": "Increase quantity",
     "remove_item": "Remove {{ title }}",
-    "shipping_note": "Taxes and shipping calculated at checkout"
+    "shipping_note": "Taxes and shipping calculated at checkout",
+    "add_error": "Could not add item to cart. Please try again."
   },
   "customers": {
     "login": {
@@ -90,12 +103,15 @@
     "from": "From",
     "select_options": "Select options",
     "quantity": "Quantity",
+    "vendor": "Vendor",
+    "product_title": "Product title",
     "save_percent": "Save {{ percent }}%",
     "material": "Material",
     "care_instructions": "Care instructions",
     "sizing_guide": "Sizing guide",
     "description": "Description",
-    "details": "Details"
+    "details": "Details",
+    "view_image": "View image {{ index }}"
   },
   "gift_card": {
     "add_to_apple_wallet": "Add to Apple Wallet",
@@ -116,7 +132,9 @@
     "placeholder": "Search our store...",
     "submit": "Search",
     "no_results": "No results found for \"{{ terms }}\"",
-    "results_for": "{{ count }} results for \"{{ terms }}\""
+    "results_for": "{{ count }} results for \"{{ terms }}\"",
+    "no_results_html": "No results found for \"{{ terms }}\"",
+    "results_for_html": "{{ count }} results for \"{{ terms }}\""
   },
   "sections": {
     "header": {
@@ -125,13 +143,10 @@
       "logo_width": "Logo width",
       "menu": "Navigation menu"
     },
-    "hero": {
-      "previous_slide": "Previous slide",
-      "next_slide": "Next slide",
-      "slide": "Slide"
-    },
     "footer": {
-      "name": "Footer"
+      "name": "Footer",
+      "navigation_label": "Footer navigation",
+      "newsletter_default": "Newsletter"
     },
     "hero": {
       "name": "Hero slideshow",
@@ -145,7 +160,10 @@
       "content_position": "Content position",
       "autoplay": "Autoplay slides",
       "autoplay_speed": "Autoplay speed",
-      "slide": "Slide"
+      "slide": "Slide",
+      "previous_slide": "Previous slide",
+      "next_slide": "Next slide",
+      "navigation_label": "Slide navigation"
     },
     "featured_collection": {
       "name": "Featured collection",
@@ -156,14 +174,19 @@
       "columns_mobile": "Columns on mobile",
       "show_vendor": "Show vendor",
       "show_quick_add": "Show quick add button",
-      "view_all": "View all"
+      "view_all": "View all",
+      "placeholder_price": "$99.00"
     },
     "product_highlight": {
       "name": "Product highlight",
       "product": "Product",
       "layout": "Layout",
       "show_metafields": "Show product metafields",
-      "background_color": "Background color"
+      "background_color": "Background color",
+      "placeholder_vendor": "Brand name",
+      "placeholder_title": "Product title",
+      "placeholder_price": "$99.00",
+      "placeholder_description": "Select a product to showcase its details, including custom metafields for material composition, care instructions, and sizing information."
     },
     "testimonials": {
       "name": "Testimonials",
@@ -174,7 +197,26 @@
       "author": "Author name",
       "author_title": "Author title",
       "author_image": "Author image",
-      "rating": "Rating"
+      "rating": "Rating",
+      "navigation_label": "Testimonial navigation",
+      "previous": "Previous testimonial",
+      "next": "Next testimonial",
+      "item_label": "Testimonial {{ index }}",
+      "empty": "Add testimonial blocks to display customer reviews."
+    },
+    "hello_world": {
+      "heading": "Hello, world",
+      "description_1": "The Skeleton theme is a minimal, carefully structured Shopify theme designed to help you quickly get started. Designed with modularity, maintainability, and Shopify's best practices in mind.",
+      "description_2": "Themes shape the online store experience for merchants and their customers. Build fast, flexible themes at scale using Liquid, Shopify's theme templating language, along with HTML, CSS, JavaScript, and JSON.",
+      "key_concepts_title": "Key concepts",
+      "key_concepts_description": "Shopify themes are a package of template files, building blocks, and supporting assets. Use these building blocks to create modular, customizable themes.",
+      "key_concepts_link": "Learn more about key concepts",
+      "liquid_title": "Liquid",
+      "liquid_description": "The Liquid templating language is the backbone of Shopify themes, and is used to load dynamic content on storefronts. Extend Liquid objects to store and present custom data using metafields.",
+      "liquid_link": "View the Liquid reference",
+      "best_practices_title": "Best practices",
+      "best_practices_description": "To optimize your theme development experience, Shopify has established a set of best practices that you can refer to when developing your theme and setting up your toolchains and processes.",
+      "best_practices_link": "Follow best practices"
     },
     "cart_drawer": {
       "name": "Cart drawer"

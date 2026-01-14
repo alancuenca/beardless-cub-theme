@@ -5,7 +5,7 @@
   https://shopify.dev/docs/storefronts/themes/architecture/templates/blog
 {% endcomment %}
 
-<h1>{{ blog.title }}</h1>
+<h1>{{ blog.title | escape }}</h1>
 
 {% paginate blog.articles by 5 %}
   {% for article in blog.articles %}
@@ -14,11 +14,11 @@
         {{ article.image | image_url: width: 1000 | image_tag }}
       {% endif %}
       <h2>
-        {{ article.title | link_to: article.url }}
+        {{ article.title | escape | link_to: article.url }}
       </h2>
       {% assign date = article.published_at | time_tag: format: 'date' %}
-      <p>{{ 'blog.article_metadata_html' | t: date: date, author: article.author }}</p>
-      <p>{{ article.excerpt }}</p>
+      <p>{{ 'blog.article_metadata_html' | t: date: date, author: article.author | escape }}</p>
+      <p>{{ article.excerpt | strip_html | truncatewords: 30 | escape }}</p>
     </div>
   {% endfor %}
 

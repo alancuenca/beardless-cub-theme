@@ -58,18 +58,18 @@
     <div class="product-highlight__content">
       <div class="product-highlight__content-inner">
         {% if product.vendor %}
-          <p class="product-highlight__vendor">{{ product.vendor }}</p>
+          <p class="product-highlight__vendor">{{ product.vendor | escape }}</p>
         {% endif %}
 
         <h2 class="product-highlight__title">
-          <a href="{{ product.url }}">{{ product.title }}</a>
+          <a href="{{ product.url }}">{{ product.title | escape }}</a>
         </h2>
 
         {% render 'price', product: product, show_compare_at: true, price_class: 'product-highlight__price' %}
 
         {% if product.description != blank %}
           <div class="product-highlight__description">
-            {{ product.description | strip_html | truncatewords: 50 }}
+            {{ product.description | strip_html | truncatewords: 50 | escape }}
           </div>
         {% endif %}
 
@@ -142,7 +142,7 @@
                     {% if variant == current_variant %}selected{% endif %}
                     {% unless variant.available %}disabled{% endunless %}
                   >
-                    {{ variant.title }}{% unless variant.available %} - {{ 'products.sold_out' | t }}{% endunless %}
+                    {{ variant.title | escape }}{% unless variant.available %} - {{ 'products.sold_out' | t }}{% endunless %}
                     - {{ variant.price | money }}
                   </option>
                 {% endfor %}
@@ -180,15 +180,15 @@
 
     <div class="product-highlight__content">
       <div class="product-highlight__content-inner">
-        <p class="product-highlight__vendor">Brand Name</p>
+        <p class="product-highlight__vendor">{{ 'sections.product_highlight.placeholder_vendor' | t }}</p>
         <h2 class="product-highlight__title">
-          <a href="#">Product Title</a>
+          <a href="#">{{ 'sections.product_highlight.placeholder_title' | t }}</a>
         </h2>
         <div class="price product-highlight__price">
-          <span class="price__regular">$99.00</span>
+          <span class="price__regular">{{ 'sections.product_highlight.placeholder_price' | t }}</span>
         </div>
         <div class="product-highlight__description">
-          <p>Select a product to showcase its details, including custom metafields for material composition, care instructions, and sizing information.</p>
+          <p>{{ 'sections.product_highlight.placeholder_description' | t }}</p>
         </div>
         <div class="product-highlight__actions">
           <button type="button" class="btn btn--primary btn--lg btn--full" disabled>

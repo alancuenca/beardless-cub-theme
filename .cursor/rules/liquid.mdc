@@ -334,6 +334,13 @@ Here's how the filters are executed step by step to eventually return `"WORLD"`:
 - `link_to_remove_tag`: `{{ string | link_to_remove_tag }}` returns `string`
 - `link_to_tag`: `{{ string | link_to_tag }}` returns `string`
 
+### Content safety and translations
+
+- All user-facing strings in Liquid templates must use `{{ 'key' | t }}`.
+- Escape plain text output with `| escape` unless it is rich text or trusted HTML.
+- Avoid hard-coded UI strings in attributes and buttons.
+- For JS that needs localized strings, pass values via data attributes rendered in Liquid.
+
 ### Liquid objects
 
 #### Global objects
@@ -830,5 +837,3 @@ Syntax:
   expression
 %}
 ```
-
-

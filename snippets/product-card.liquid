@@ -41,7 +41,7 @@
 %}
 
 <article class="product-card {{ card_class }}" data-product-card>
-  <a href="{{ product.url }}" class="product-card__link" aria-label="{{ product.title }}">
+  <a href="{{ product.url }}" class="product-card__link" aria-label="{{ product.title | escape }}">
     <div class="product-card__media" style="--aspect-ratio: {{ aspect_ratio }}">
       {% if featured_image %}
         <img
@@ -96,18 +96,18 @@
 
   <div class="product-card__info">
     {% if show_vendor and product.vendor %}
-      <p class="product-card__vendor">{{ product.vendor }}</p>
+      <p class="product-card__vendor">{{ product.vendor | escape }}</p>
     {% endif %}
 
     <h3 class="product-card__title">
-      <a href="{{ product.url }}">{{ product.title }}</a>
+      <a href="{{ product.url }}">{{ product.title | escape }}</a>
     </h3>
 
     {% render 'price', product: product %}
 
     {% if show_quick_add and product.available %}
       {% if product.variants.size == 1 %}
-        <form action="/cart/add" method="post" class="product-card__quick-add">
+        <form action="{{ routes.cart_add_url }}" method="post" class="product-card__quick-add">
           <input type="hidden" name="id" value="{{ current_variant.id }}">
           <input type="hidden" name="quantity" value="1">
           <button type="submit" class="btn btn--secondary btn--sm btn--full">

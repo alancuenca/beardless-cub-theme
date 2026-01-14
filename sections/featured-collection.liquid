@@ -29,11 +29,11 @@
 >
   <div class="featured-collection__header">
     {% if section.settings.heading != blank %}
-      <h2 class="featured-collection__heading">{{ section.settings.heading }}</h2>
+      <h2 class="featured-collection__heading">{{ section.settings.heading | escape }}</h2>
     {% endif %}
 
     {% if section.settings.subheading != blank %}
-      <p class="featured-collection__subheading">{{ section.settings.subheading }}</p>
+      <p class="featured-collection__subheading">{{ section.settings.subheading | escape }}</p>
     {% endif %}
 
     {% if collection and section.settings.show_view_all %}
@@ -75,7 +75,7 @@
               <a href="#">{{ 'products.product_title' | t }}</a>
             </h3>
             <div class="price">
-              <span class="price__regular">$99.00</span>
+              <span class="price__regular">{{ 'sections.featured_collection.placeholder_price' | t }}</span>
             </div>
           </div>
         </article>
@@ -233,7 +233,7 @@
     },
     {
       "type": "header",
-      "content": "Layout"
+      "content": "t:sections.featured_collection.layout_heading"
     },
     {
       "type": "select",
@@ -260,17 +260,17 @@
     {
       "type": "select",
       "id": "image_ratio",
-      "label": "Image ratio",
+      "label": "t:sections.featured_collection.image_ratio",
       "options": [
-        { "value": "portrait", "label": "Portrait (3:4)" },
-        { "value": "square", "label": "Square (1:1)" },
-        { "value": "landscape", "label": "Landscape (4:3)" }
+        { "value": "portrait", "label": "t:sections.featured_collection.image_ratio_portrait" },
+        { "value": "square", "label": "t:sections.featured_collection.image_ratio_square" },
+        { "value": "landscape", "label": "t:sections.featured_collection.image_ratio_landscape" }
       ],
       "default": "portrait"
     },
     {
       "type": "header",
-      "content": "Product card"
+      "content": "t:sections.featured_collection.product_card_heading"
     },
     {
       "type": "checkbox",

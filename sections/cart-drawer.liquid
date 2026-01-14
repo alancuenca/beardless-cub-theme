@@ -60,9 +60,9 @@
           </div>
 
           <div class="cart-item__details">
-            <a href="{{ item.url }}" class="cart-item__title">{{ item.product.title }}</a>
+            <a href="{{ item.url }}" class="cart-item__title">{{ item.product.title | escape }}</a>
             {% if item.variant.title != 'Default Title' %}
-              <p class="cart-item__variant">{{ item.variant.title }}</p>
+              <p class="cart-item__variant">{{ item.variant.title | escape }}</p>
             {% endif %}
             <p class="cart-item__price">{{ item.final_line_price | money }}</p>
           </div>

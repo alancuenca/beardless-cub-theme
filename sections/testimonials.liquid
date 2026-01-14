@@ -68,7 +68,7 @@
             {% comment %} Quote {% endcomment %}
             {% if block.settings.quote != blank %}
               <blockquote class="testimonial__quote">
-                <p>{{ block.settings.quote }}</p>
+                <p>{{ block.settings.quote | escape }}</p>
               </blockquote>
             {% endif %}
 
@@ -94,11 +94,11 @@
 
               <div class="testimonial__author-info">
                 {% if block.settings.author != blank %}
-                  <cite class="testimonial__author-name">{{ block.settings.author }}</cite>
+                  <cite class="testimonial__author-name">{{ block.settings.author | escape }}</cite>
                 {% endif %}
 
                 {% if block.settings.author_title != blank %}
-                  <span class="testimonial__author-title">{{ block.settings.author_title }}</span>
+                  <span class="testimonial__author-title">{{ block.settings.author_title | escape }}</span>
                 {% endif %}
               </div>
             </footer>
@@ -109,12 +109,12 @@
 
     {% comment %} Navigation {% endcomment %}
     {% if testimonial_count > 1 %}
-      <nav class="testimonials__nav" aria-label="Testimonial navigation">
+      <nav class="testimonials__nav" aria-label="{{ 'sections.testimonials.navigation_label' | t }}">
         <button
           type="button"
           class="testimonials__nav-btn testimonials__nav-btn--prev"
           data-testimonials-prev
-          aria-label="Previous testimonial"
+          aria-label="{{ 'sections.testimonials.previous' | t }}"
         >
           <svg width="24" height="24" viewBox="0 0 24 24" fill="none" aria-hidden="true">
             <path d="M15 18l-6-6 6-6" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"/>
@@ -130,7 +130,7 @@
               data-index="{{ forloop.index0 }}"
               role="tab"
               aria-selected="{% if forloop.first %}true{% else %}false{% endif %}"
-              aria-label="Testimonial {{ forloop.index }}"
+              aria-label="{{ 'sections.testimonials.item_label' | t: index: forloop.index }}"
             ></button>
           {% endfor %}
         </div>
@@ -139,7 +139,7 @@
           type="button"
           class="testimonials__nav-btn testimonials__nav-btn--next"
           data-testimonials-next
-          aria-label="Next testimonial"
+          aria-label="{{ 'sections.testimonials.next' | t }}"
         >
           <svg width="24" height="24" viewBox="0 0 24 24" fill="none" aria-hidden="true">
             <path d="M9 18l6-6-6-6" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"/>
@@ -150,7 +150,7 @@
   {% else %}
     {% comment %} Placeholder state {% endcomment %}
     <div class="testimonials__placeholder">
-      <p>Add testimonial blocks to display customer reviews.</p>
+      <p>{{ 'sections.testimonials.empty' | t }}</p>
     </div>
   {% endif %}
 </section>

@@ -98,3 +98,10 @@ Schema locale files, saved with a .schema.json extension, store translation stri
 - Use variables for dynamic content
 - Consider character limits
 - Maintain consistent terminology
+
+### Schema locale guardrails
+
+- Every `t:` key used in section/block schemas must exist in `locales/en.default.schema.json`.
+- Prefer sentence case for labels and names.
+- Keep schema keys aligned to their section group (e.g., `sections.header.*`).
+- Include labels for all settings and blocks to avoid editor warnings.

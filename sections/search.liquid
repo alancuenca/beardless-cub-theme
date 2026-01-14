@@ -19,10 +19,11 @@
 </form>
 
 {% if search.performed %}
+  {% assign search_terms = search.terms | escape %}
   {% if search.results_count == 0 %}
-    <p>{{ 'search.no_results_html' | t: terms: search.terms }}</p>
+    <p>{{ 'search.no_results_html' | t: terms: search_terms }}</p>
   {% else %}
-    <p>{{ 'search.results_for_html' | t: terms: search.terms, count: search.results_count }}</p>
+    <p>{{ 'search.results_for_html' | t: terms: search_terms, count: search.results_count }}</p>
 
     <div class="search-results">
       {% paginate search.results by 20 %}
@@ -35,7 +36,7 @@
             {% endif %}
             <div class="search-result__content">
               <p>
-                {{ result.title | link_to: result.url }}
+                {{ result.title | escape | link_to: result.url }}
                 {% if result.price %}
                   {{ result.price | money_with_currency }}
                 {% endif %}
