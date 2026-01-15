@@ -123,12 +123,12 @@
   </div>
 
   {% if show_best_sellers and best_sellers_collection != blank %}
-    <div class="hero__best-sellers" aria-label="{{ 'sections.hero.best_sellers_heading' | t }}">
+    <div class="hero__best-sellers" aria-label="{{ 'sections.hero.best_sellers_title' | t }}">
       <div class="hero__best-sellers-inner">
         <div class="hero__best-sellers-header">
-          <h3 class="hero__best-sellers-title">{{ 'sections.hero.best_sellers_heading' | t }}</h3>
+          <h3 class="hero__best-sellers-title">{{ 'sections.hero.best_sellers_title' | t }}</h3>
           <a class="hero__best-sellers-link" href="{{ best_sellers_collection.url }}">
-            {{ 'sections.hero.best_sellers_link' | t }}
+            {{ 'sections.hero.best_sellers_cta' | t }}
           </a>
         </div>
 

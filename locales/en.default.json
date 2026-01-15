@@ -164,8 +164,8 @@
       "previous_slide": "Previous slide",
       "next_slide": "Next slide",
       "navigation_label": "Slide navigation",
-      "best_sellers_heading": "Best sellers",
-      "best_sellers_link": "Shop all"
+      "best_sellers_title": "Best sellers",
+      "best_sellers_cta": "Shop all"
     },
     "featured_collection": {
       "name": "Featured collection",
