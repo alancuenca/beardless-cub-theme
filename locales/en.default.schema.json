@@ -135,6 +135,7 @@
       "heading": "Heading",
       "button_text": "Button text",
       "button_link": "Button link",
+      "button_link_info": "Required for button to appear. Link to a collection, product, or page.",
       "content_position": "Content position",
       "text_color": "Text color",
       "content_heading": "Content",
