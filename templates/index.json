@@ -15,16 +15,16 @@
         "slide_1": {
           "type": "slide",
           "settings": {
-            "image": "shopify://shop_images/mens-watch-and-ring.jpg",
-            "mobile_image": "shopify://shop_images/guardian-angel-earring-closeup_925x_9fbead2d-2082-4d55-a224-e44bb2432c4d.jpg",
+            "image": "shopify://shop_images/tie-clip.jpg",
+            "mobile_image": "shopify://shop_images/inspired-woman_925x_76ad7bac-bf37-4992-90d6-e2e631396a37.jpg",
             "image_position": "center center",
-            "overlay_opacity": 55,
+            "overlay_opacity": 80,
             "subheading": "New Collection",
             "heading": "Discover Timeless Elegance",
             "text": "Explore our curated selection of handcrafted jewelry and refined clothing for the modern individual.",
             "button_text": "Shop Now",
-            "button_link": "",
-            "content_position": "middle_center",
+            "button_link": "shopify://collections/best-sellers",
+            "content_position": "middle_left",
             "text_color": "light"
           }
         },
@@ -33,15 +33,15 @@
           "settings": {
             "image": "shopify://shop_images/model-with-leather-jacket-over-shoulders.jpg",
             "mobile_image": "shopify://shop_images/womens-hand-moon-bracelet-_925x_86a73749-fbac-46db-b509-70d015c49b34.jpg",
-            "image_position": "center center",
-            "overlay_opacity": 50,
+            "image_position": "bottom center",
+            "overlay_opacity": 0,
             "subheading": "Artisan Quality",
             "heading": "Crafted with Care",
             "text": "Each piece is thoughtfully designed and crafted to become a cherished part of your collection.",
             "button_text": "Explore Collection",
-            "button_link": "",
+            "button_link": "shopify://collections/automated-collection",
             "content_position": "middle_left",
-            "text_color": "light"
+            "text_color": "dark"
           }
         }
       },
