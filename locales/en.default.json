@@ -172,9 +172,12 @@
       "slide": "Slide",
       "previous_slide": "Previous slide",
       "next_slide": "Next slide",
-      "navigation_label": "Slide navigation",
-      "best_sellers_title": "Best sellers",
-      "best_sellers_cta": "Shop all"
+      "navigation_label": "Slide navigation"
+    },
+    "best_sellers_rail": {
+      "name": "Best sellers rail",
+      "view_all": "View all",
+      "default_title": "Best Sellers"
     },
     "featured_collection": {
       "name": "Featured collection",

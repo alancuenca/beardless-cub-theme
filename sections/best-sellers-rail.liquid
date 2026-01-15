@@ -1,0 +1,251 @@
+{% comment %}
+  Best Sellers Rail Section
+
+  A horizontal scrollable product rail featuring products from a selected collection.
+  Can be placed anywhere in templates, typically below the hero section.
+{% endcomment %}
+
+{% liquid
+  assign collection = section.settings.collection
+  assign products_limit = section.settings.products_limit | default: 5
+  assign show_title = section.settings.show_title
+  assign title = section.settings.title
+  assign show_view_all = section.settings.show_view_all
+%}
+
+{% if collection != blank and collection.products.size > 0 %}
+  <section
+    class="best-sellers-rail"
+    aria-label="{{ title | default: 'sections.best_sellers_rail.name' | t }}"
+  >
+    <div class="best-sellers-rail__inner page-width">
+      {% if show_title or show_view_all %}
+        <div class="best-sellers-rail__header">
+          {% if show_title %}
+            <h2 class="best-sellers-rail__title">
+              {{ title | default: 'sections.best_sellers_rail.default_title' | t }}
+            </h2>
+          {% endif %}
+          {% if show_view_all and collection.url != blank %}
+            <a class="best-sellers-rail__link" href="{{ collection.url }}">
+              {{ 'sections.best_sellers_rail.view_all' | t }}
+            </a>
+          {% endif %}
+        </div>
+      {% endif %}
+
+      <ul class="best-sellers-rail__list" role="list">
+        {% for product in collection.products limit: products_limit %}
+          <li class="best-sellers-rail__item">
+            <a class="best-sellers-rail__card" href="{{ product.url }}">
+              <div class="best-sellers-rail__media">
+                {% if product.featured_image %}
+                  <img
+                    src="{{ product.featured_image | image_url: width: 300 }}"
+                    srcset="
+                      {{ product.featured_image | image_url: width: 200 }} 200w,
+                      {{ product.featured_image | image_url: width: 250 }} 250w,
+                      {{ product.featured_image | image_url: width: 300 }} 300w,
+                      {{ product.featured_image | image_url: width: 400 }} 400w
+                    "
+                    sizes="(min-width: 768px) 180px, 140px"
+                    alt="{{ product.featured_image.alt | default: product.title | escape }}"
+                    width="180"
+                    height="180"
+                    loading="lazy"
+                  >
+                {% else %}
+                  <div class="best-sellers-rail__placeholder">
+                    {{ 'product-1' | placeholder_svg_tag }}
+                  </div>
+                {% endif %}
+              </div>
+              <div class="best-sellers-rail__info">
+                <span class="best-sellers-rail__name">{{ product.title | escape }}</span>
+                <span class="best-sellers-rail__price">{{ product.price | money }}</span>
+              </div>
+            </a>
+          </li>
+        {% endfor %}
+      </ul>
+    </div>
+  </section>
+{% endif %}
+
+{% stylesheet %}
+  .best-sellers-rail {
+    padding: var(--space-lg) 0;
+    background-color: var(--color-background);
+    border-bottom: 1px solid var(--color-border);
+  }
+
+  .best-sellers-rail__inner {
+    display: grid;
+    gap: var(--space-md);
+  }
+
+  .best-sellers-rail__header {
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    gap: var(--space-md);
+  }
+
+  .best-sellers-rail__title {
+    font-size: var(--text-lg);
+    font-weight: 600;
+    margin: 0;
+  }
+
+  .best-sellers-rail__link {
+    font-size: var(--text-sm);
+    text-decoration: none;
+    color: var(--color-secondary);
+    white-space: nowrap;
+  }
+
+  .best-sellers-rail__link:hover {
+    text-decoration: underline;
+  }
+
+  .best-sellers-rail__list {
+    display: grid;
+    grid-auto-flow: column;
+    grid-auto-columns: minmax(140px, 180px);
+    gap: var(--space-md);
+    overflow-x: auto;
+    padding-bottom: var(--space-xs);
+    scroll-snap-type: x mandatory;
+    scrollbar-width: thin;
+  }
+
+  .best-sellers-rail__item {
+    scroll-snap-align: start;
+  }
+
+  .best-sellers-rail__card {
+    display: grid;
+    gap: var(--space-sm);
+    text-decoration: none;
+    color: inherit;
+  }
+
+  .best-sellers-rail__card:hover .best-sellers-rail__name {
+    color: var(--color-primary);
+  }
+
+  .best-sellers-rail__media {
+    width: 100%;
+    aspect-ratio: 1 / 1;
+    border-radius: var(--radius-md);
+    overflow: hidden;
+    background-color: var(--color-muted);
+  }
+
+  .best-sellers-rail__media img {
+    width: 100%;
+    height: 100%;
+    object-fit: cover;
+    transition: transform var(--transition-base);
+  }
+
+  .best-sellers-rail__card:hover .best-sellers-rail__media img {
+    transform: scale(1.05);
+  }
+
+  .best-sellers-rail__placeholder {
+    width: 100%;
+    height: 100%;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+  }
+
+  .best-sellers-rail__placeholder svg {
+    width: 50%;
+    height: 50%;
+    opacity: 0.3;
+  }
+
+  .best-sellers-rail__info {
+    display: grid;
+    gap: 2px;
+  }
+
+  .best-sellers-rail__name {
+    font-size: var(--text-sm);
+    font-weight: 500;
+    line-height: 1.3;
+    transition: color var(--transition-fast);
+  }
+
+  .best-sellers-rail__price {
+    font-size: var(--text-sm);
+    color: var(--color-secondary);
+  }
+
+  @media (min-width: 768px) {
+    .best-sellers-rail {
+      padding: var(--space-xl) 0;
+    }
+
+    .best-sellers-rail__list {
+      grid-auto-columns: minmax(160px, 200px);
+    }
+
+    .best-sellers-rail__title {
+      font-size: var(--text-xl);
+    }
+  }
+{% endstylesheet %}
+
+{% schema %}
+{
+  "name": "t:sections.best_sellers_rail.name",
+  "tag": "section",
+  "class": "section-best-sellers-rail",
+  "settings": [
+    {
+      "type": "collection",
+      "id": "collection",
+      "label": "t:sections.best_sellers_rail.collection"
+    },
+    {
+      "type": "range",
+      "id": "products_limit",
+      "min": 3,
+      "max": 12,
+      "step": 1,
+      "label": "t:sections.best_sellers_rail.products_limit",
+      "default": 6
+    },
+    {
+      "type": "header",
+      "content": "t:sections.best_sellers_rail.content_heading"
+    },
+    {
+      "type": "checkbox",
+      "id": "show_title",
+      "label": "t:sections.best_sellers_rail.show_title",
+      "default": true
+    },
+    {
+      "type": "text",
+      "id": "title",
+      "label": "t:sections.best_sellers_rail.title",
+      "default": "Best Sellers"
+    },
+    {
+      "type": "checkbox",
+      "id": "show_view_all",
+      "label": "t:sections.best_sellers_rail.show_view_all",
+      "default": true
+    }
+  ],
+  "presets": [
+    {
+      "name": "t:sections.best_sellers_rail.name"
+    }
+  ]
+}
+{% endschema %}

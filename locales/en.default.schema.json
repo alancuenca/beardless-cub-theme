@@ -95,15 +95,39 @@
     "size": {
       "small": "Small",
       "large": "Large"
+    },
+    "section_height": {
+      "compact": "Compact (350-400px)",
+      "moderate": "Moderate (400-500px)"
+    },
+    "image_fit": {
+      "cover": "Fill (may crop)",
+      "contain": "Fit (show full image)"
+    },
+    "image_position": {
+      "top_left": "Top left",
+      "top_center": "Top center",
+      "top_right": "Top right",
+      "center_left": "Center left",
+      "center": "Center",
+      "center_right": "Center right",
+      "bottom_left": "Bottom left",
+      "bottom_center": "Bottom center",
+      "bottom_right": "Bottom right"
     }
   },
   "sections": {
     "hero": {
       "name": "Hero slideshow",
       "slide": "Slide",
+      "section_height": "Section height",
       "autoplay": "Autoplay slides",
       "autoplay_speed": "Autoplay speed",
       "image": "Background image",
+      "image_fit": "Image fit",
+      "image_fit_info": "Fill crops the image to fit. Fit shows the full image with background.",
+      "image_position": "Image focal point",
+      "image_position_info": "Choose which part of the image stays visible when cropped.",
       "overlay_opacity": "Overlay opacity",
       "subheading": "Subheading",
       "heading": "Heading",
@@ -112,11 +136,18 @@
       "content_position": "Content position",
       "text_color": "Text color",
       "content_heading": "Content",
-      "layout_heading": "Layout",
-      "best_sellers_heading": "Best sellers",
-      "show_best_sellers": "Show best sellers",
-      "best_sellers_collection": "Best sellers collection",
-      "best_sellers_limit": "Products to show"
+      "layout_heading": "Layout"
+    },
+    "best_sellers_rail": {
+      "name": "Best sellers rail",
+      "collection": "Collection",
+      "products_limit": "Products to show",
+      "content_heading": "Content",
+      "show_title": "Show title",
+      "title": "Title",
+      "show_view_all": "Show view all link",
+      "view_all": "View all",
+      "default_title": "Best Sellers"
     },
     "featured_collection": {
       "name": "Featured collection",
