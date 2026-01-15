@@ -12,6 +12,22 @@
     "hero": {
       "type": "hero-slideshow",
       "blocks": {
+        "slide_2": {
+          "type": "slide",
+          "settings": {
+            "image": "shopify://shop_images/model-with-leather-jacket-over-shoulders.jpg",
+            "mobile_image": "shopify://shop_images/model-with-leather-jacket-over-shoulders.jpg",
+            "image_position": "bottom center",
+            "overlay_opacity": 80,
+            "subheading": "Artisan Quality",
+            "heading": "Crafted with Care",
+            "text": "Each piece is thoughtfully designed and crafted to become a cherished part of your collection.",
+            "button_text": "Explore Collection",
+            "button_link": "shopify://collections/automated-collection",
+            "content_position": "middle_left",
+            "text_color": "light"
+          }
+        },
         "slide_1": {
           "type": "slide",
           "settings": {
@@ -27,27 +43,11 @@
             "content_position": "middle_left",
             "text_color": "light"
           }
-        },
-        "slide_2": {
-          "type": "slide",
-          "settings": {
-            "image": "shopify://shop_images/model-with-leather-jacket-over-shoulders.jpg",
-            "mobile_image": "shopify://shop_images/womens-hand-moon-bracelet-_925x_86a73749-fbac-46db-b509-70d015c49b34.jpg",
-            "image_position": "bottom center",
-            "overlay_opacity": 0,
-            "subheading": "Artisan Quality",
-            "heading": "Crafted with Care",
-            "text": "Each piece is thoughtfully designed and crafted to become a cherished part of your collection.",
-            "button_text": "Explore Collection",
-            "button_link": "shopify://collections/automated-collection",
-            "content_position": "middle_left",
-            "text_color": "dark"
-          }
         }
       },
       "block_order": [
-        "slide_1",
-        "slide_2"
+        "slide_2",
+        "slide_1"
       ],
       "settings": {
         "section_height": "moderate",
