@@ -120,6 +120,11 @@ ol {
   --space-3xl: 4rem;
   --space-4xl: 6rem;
 
+  /* Layout */
+  --page-gutter: clamp(0.75rem, 0vw, 2.5rem);
+  --layout-max-width: min(var(--page-width), 100%);
+  --grid-gap: clamp(1rem, 2vw, 2rem);
+
   /* Border Radius */
   --radius-sm: 0.25rem;
   --radius-md: 0.5rem;
@@ -179,22 +184,45 @@ body {
   color: var(--color-foreground);
 }
 
-h1, h2, h3, h4, h5, h6 {
+h1,
+h2,
+h3,
+h4,
+h5,
+h6 {
   font-weight: 600;
   line-height: 1.2;
 }
 
-h1 { font-size: var(--text-4xl); }
-h2 { font-size: var(--text-3xl); }
-h3 { font-size: var(--text-2xl); }
-h4 { font-size: var(--text-xl); }
-h5 { font-size: var(--text-lg); }
-h6 { font-size: var(--text-base); }
+h1 {
+  font-size: var(--text-4xl);
+}
+h2 {
+  font-size: var(--text-3xl);
+}
+h3 {
+  font-size: var(--text-2xl);
+}
+h4 {
+  font-size: var(--text-xl);
+}
+h5 {
+  font-size: var(--text-lg);
+}
+h6 {
+  font-size: var(--text-base);
+}
 
 @media (min-width: 768px) {
-  h1 { font-size: var(--text-5xl); }
-  h2 { font-size: var(--text-4xl); }
-  h3 { font-size: var(--text-3xl); }
+  h1 {
+    font-size: var(--text-5xl);
+  }
+  h2 {
+    font-size: var(--text-4xl);
+  }
+  h3 {
+    font-size: var(--text-3xl);
+  }
 }
 
 /* ==========================================================================
@@ -206,13 +234,15 @@ h6 { font-size: var(--text-base); }
  * Enables full-width and constrained layouts using CSS Grid.
  * Children default to center column; .full-width spans viewport.
  */
+body {
+  min-width: 320px;
+}
+
 .shopify-section {
-  --content-width: min(
-    calc(var(--page-width) - var(--page-margin) * 2),
-    calc(100% - var(--page-margin) * 2)
-  );
-  --content-margin: minmax(var(--page-margin), 1fr);
-  --content-grid: var(--content-margin) var(--content-width) var(--content-margin);
+  --content-width: min(var(--layout-max-width), calc(100% - (var(--page-gutter) * 2)));
+  --content-margin: minmax(var(--page-gutter), 1fr);
+  --content-grid: [full-start] var(--content-margin) [content-start] var(--content-width) [content-end]
+    var(--content-margin) [full-end];
 
   position: relative;
   display: grid;
@@ -221,19 +251,43 @@ h6 { font-size: var(--text-base); }
 }
 
 .shopify-section > * {
-  grid-column: 2;
+  grid-column: content-start / content-end;
 }
 
 .shopify-section > .full-width {
-  grid-column: 1 / -1;
+  grid-column: full-start / full-end;
+}
+
+.shopify-section .page-width {
+  max-width: 100%;
+  padding-inline: 0;
 }
 
 /* Page Width Container */
+.layout-container,
 .page-width {
   width: 100%;
-  max-width: var(--page-width);
+  max-width: var(--layout-max-width);
   margin-inline: auto;
-  padding-inline: var(--page-margin);
+  padding-inline: var(--page-gutter);
+}
+
+.layout-grid {
+  display: grid;
+  grid-template-columns: repeat(4, minmax(0, 1fr));
+  gap: var(--grid-gap);
+}
+
+@media (min-width: 768px) {
+  .layout-grid {
+    grid-template-columns: repeat(8, minmax(0, 1fr));
+  }
+}
+
+@media (min-width: 1024px) {
+  .layout-grid {
+    grid-template-columns: repeat(12, minmax(0, 1fr));
+  }
 }
 
 /* ==========================================================================
@@ -346,14 +400,28 @@ h6 { font-size: var(--text-base); }
    Utility Classes
    ========================================================================== */
 
-.text-center { text-align: center; }
-.text-left { text-align: left; }
-.text-right { text-align: right; }
+.text-center {
+  text-align: center;
+}
+.text-left {
+  text-align: left;
+}
+.text-right {
+  text-align: right;
+}
 
-.text-muted { color: var(--color-secondary); }
-.text-accent { color: var(--color-accent); }
-.text-error { color: var(--color-error); }
-.text-success { color: var(--color-success); }
+.text-muted {
+  color: var(--color-secondary);
+}
+.text-accent {
+  color: var(--color-accent);
+}
+.text-error {
+  color: var(--color-error);
+}
+.text-success {
+  color: var(--color-success);
+}
 
 /* ==========================================================================
    Overlay & Backdrop
@@ -365,7 +433,9 @@ h6 { font-size: var(--text-base); }
   background-color: rgba(0, 0, 0, 0.5);
   opacity: 0;
   visibility: hidden;
-  transition: opacity var(--transition-base), visibility var(--transition-base);
+  transition:
+    opacity var(--transition-base),
+    visibility var(--transition-base);
   z-index: var(--z-drawer);
 }
 
@@ -394,7 +464,9 @@ h6 { font-size: var(--text-base); }
 }
 
 @keyframes spin {
-  to { transform: rotate(360deg); }
+  to {
+    transform: rotate(360deg);
+  }
 }
 
 .spinner {

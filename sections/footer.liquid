@@ -24,7 +24,7 @@
   endif
 %}
 
-<footer class="footer" role="contentinfo">
+<footer class="footer full-width" role="contentinfo">
   <div class="footer__inner">
     <div class="footer__main">
       {% comment %} Brand / About {% endcomment %}
@@ -181,9 +181,9 @@
   }
 
   .footer__inner {
-    max-width: var(--page-width);
+    max-width: var(--layout-max-width);
     margin-inline: auto;
-    padding-inline: var(--page-margin);
+    padding-inline: var(--page-gutter);
   }
 
   .footer__main {

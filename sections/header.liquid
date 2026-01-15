@@ -18,7 +18,7 @@
   endif
 %}
 
-<header class="header" data-header style="--logo-text-size: {{ section.settings.logo_text_size }}px;">
+<header class="header full-width" data-header style="--logo-text-size: {{ section.settings.logo_text_size }}px;">
   <div class="header__inner">
     <div class="header__brand">
       {% comment %} Mobile menu toggle {% endcomment %}
@@ -254,7 +254,10 @@
     justify-content: space-between;
     gap: var(--header-gap);
     height: var(--header-height);
-    padding-inline: var(--page-margin);
+    width: 100%;
+    max-width: var(--layout-max-width);
+    margin-inline: auto;
+    padding-inline: var(--page-gutter);
   }
 
   @media (min-width: 1024px) {
@@ -263,11 +266,7 @@
     }
   }
 
-  @media (max-width: 1023px) {
-    .header__inner {
-      padding-inline: var(--space-md);
-    }
-  }
+
 
   .header__brand {
     display: flex;

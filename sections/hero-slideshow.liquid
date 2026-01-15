@@ -14,7 +14,7 @@
 %}
 
 <section
-  class="hero hero--{{ section_height }}"
+  class="hero hero--{{ section_height }} full-width"
   data-hero-slideshow
   data-autoplay="{{ autoplay }}"
   data-autoplay-speed="{{ autoplay_speed }}"
@@ -26,7 +26,7 @@
         assign is_first = forloop.first
         assign content_position = block.settings.content_position | default: 'middle_center'
         assign text_color = block.settings.text_color | default: 'light'
-        assign overlay_opacity = block.settings.overlay_opacity | default: 30
+        assign overlay_opacity = block.settings.overlay_opacity | default: 40
         assign image_position = block.settings.image_position | default: 'center center'
 
         # Use mobile image if set, otherwise fall back to main image
@@ -89,7 +89,7 @@
           {% if overlay_opacity > 0 %}
             <div
               class="hero__overlay"
-              style="opacity: {{ overlay_opacity | divided_by: 100.0 }};"
+              style="--overlay-opacity: {{ overlay_opacity | divided_by: 100.0 }};"
               aria-hidden="true"
             ></div>
           {% endif %}
@@ -335,8 +335,8 @@ document.querySelectorAll('[data-hero-slideshow]').forEach(el => new HeroSlidesh
   inset: 0;
   background: linear-gradient(
     to bottom,
-    rgba(0, 0, 0, 0.1) 0%,
-    rgba(0, 0, 0, 0.4) 100%
+    rgba(0, 0, 0, calc(var(--overlay-opacity, 0.35) * 0.35)) 0%,
+    rgba(0, 0, 0, calc(var(--overlay-opacity, 0.35) * 0.85)) 100%
   );
   pointer-events: none;
 }
@@ -630,7 +630,7 @@ document.querySelectorAll('[data-hero-slideshow]').forEach(el => new HeroSlidesh
           "step": 5,
           "unit": "%",
           "label": "t:sections.hero.overlay_opacity",
-          "default": 30
+          "default": 40
         },
         {
           "type": "header",
