@@ -11,44 +11,51 @@
   if section.settings.logo
     assign logo_height = section.settings.logo.height | times: logo_width | divided_by: section.settings.logo.width | round
   endif
+  if customer
+    assign account_url = routes.account_url
+  else
+    assign account_url = routes.account_login_url
+  endif
 %}
 
 <header class="header" data-header style="--logo-text-size: {{ section.settings.logo_text_size }}px;">
   <div class="header__inner">
-    {% comment %} Mobile menu toggle {% endcomment %}
-    <button
-      type="button"
-      class="header__menu-toggle"
-      data-mobile-menu-toggle
-      aria-label="{{ 'general.menu' | t }}"
-      aria-expanded="false"
-      aria-controls="mobile-menu"
-    >
-      <span class="header__menu-icon" aria-hidden="true">
-        <span></span>
-        <span></span>
-        <span></span>
-      </span>
-    </button>
+    <div class="header__brand">
+      {% comment %} Mobile menu toggle {% endcomment %}
+      <button
+        type="button"
+        class="header__menu-toggle"
+        data-mobile-menu-toggle
+        aria-label="{{ 'general.menu' | t }}"
+        aria-expanded="false"
+        aria-controls="mobile-menu"
+      >
+        <span class="header__menu-icon" aria-hidden="true">
+          <span></span>
+          <span></span>
+          <span></span>
+        </span>
+      </button>
 
-    {% comment %} Logo / Store name {% endcomment %}
-    <div class="header__logo">
-      <a href="{{ routes.root_url }}" class="header__logo-link">
-        {% if section.settings.logo_text != blank %}
-          <span class="header__logo-text">{{ section.settings.logo_text | escape }}</span>
-        {% elsif section.settings.logo %}
-          <img
-            src="{{ section.settings.logo | image_url: width: logo_width }}"
-            srcset="{{ section.settings.logo | image_url: width: logo_width }} 1x, {{ section.settings.logo | image_url: width: logo_width_2x }} 2x"
-            alt="{{ shop.name | escape }}"
-            width="{{ logo_width }}"
-            height="{{ logo_height }}"
-            loading="eager"
-          >
-        {% else %}
-          <span class="header__logo-text">{{ shop.name | escape }}</span>
-        {% endif %}
-      </a>
+      {% comment %} Logo / Store name {% endcomment %}
+      <div class="header__logo">
+        <a href="{{ routes.root_url }}" class="header__logo-link">
+          {% if section.settings.logo_text != blank %}
+            <span class="header__logo-text">{{ section.settings.logo_text | escape }}</span>
+          {% elsif section.settings.logo %}
+            <img
+              src="{{ section.settings.logo | image_url: width: logo_width }}"
+              srcset="{{ section.settings.logo | image_url: width: logo_width }} 1x, {{ section.settings.logo | image_url: width: logo_width_2x }} 2x"
+              alt="{{ shop.name | escape }}"
+              width="{{ logo_width }}"
+              height="{{ logo_height }}"
+              loading="eager"
+            >
+          {% else %}
+            <span class="header__logo-text">{{ shop.name | escape }}</span>
+          {% endif %}
+        </a>
+      </div>
     </div>
 
     {% comment %} Desktop Navigation {% endcomment %}
@@ -89,7 +96,7 @@
     <div class="header__icons">
       {% if shop.customer_accounts_enabled %}
         <a
-          href="{{ routes.account_url }}"
+          href="{{ account_url }}"
           class="header__icon-link"
           aria-label="{{ 'general.account' | t }}"
         >
@@ -153,7 +160,7 @@
 
     {% if shop.customer_accounts_enabled %}
       <div class="header__mobile-account">
-        <a href="{{ routes.account_url }}" class="btn btn--secondary btn--full">
+        <a href="{{ account_url }}" class="btn btn--secondary btn--full">
           {{ 'general.account' | t }}
         </a>
       </div>
@@ -225,6 +232,11 @@
 
 {% stylesheet %}
   .header {
+    --header-height: 4rem;
+    --header-height-desktop: 5rem;
+    --header-gap: var(--space-lg);
+    --icon-size: 1.25rem;
+    --icon-button-size: 2.5rem;
     position: sticky;
     top: 0;
     z-index: var(--z-sticky);
@@ -240,15 +252,28 @@
     display: flex;
     align-items: center;
     justify-content: space-between;
-    gap: var(--space-md);
-    height: 4rem;
+    gap: var(--header-gap);
+    height: var(--header-height);
     padding-inline: var(--page-margin);
   }
 
   @media (min-width: 1024px) {
     .header__inner {
-      height: 5rem;
+      height: var(--header-height-desktop);
     }
+  }
+
+  @media (max-width: 1023px) {
+    .header__inner {
+      padding-inline: var(--space-md);
+    }
+  }
+
+  .header__brand {
+    display: flex;
+    align-items: center;
+    gap: var(--space-sm);
+    min-width: 0;
   }
 
   /* Mobile Menu Toggle */
@@ -256,8 +281,8 @@
     display: flex;
     align-items: center;
     justify-content: center;
-    width: 2.5rem;
-    height: 2.5rem;
+    width: var(--icon-button-size);
+    height: var(--icon-button-size);
     padding: 0;
   }
 
@@ -304,6 +329,7 @@
   .header__logo-link {
     display: block;
     text-decoration: none;
+    line-height: 1;
   }
 
   .header__logo-text {
@@ -322,6 +348,7 @@
     display: none;
     flex: 1;
     justify-content: center;
+    min-width: 0;
   }
 
   @media (min-width: 1024px) {
@@ -333,7 +360,7 @@
   .header__nav-list {
     display: flex;
     align-items: center;
-    gap: var(--space-xl);
+    gap: var(--space-lg);
   }
 
   .header__nav-item {
@@ -344,6 +371,7 @@
     display: block;
     padding: var(--space-sm) 0;
     font-size: var(--text-sm);
+    line-height: 1.2;
     text-decoration: none;
     transition: color var(--transition-fast);
   }
@@ -391,7 +419,7 @@
   .header__icons {
     display: flex;
     align-items: center;
-    gap: var(--space-sm);
+    gap: var(--space-xs);
   }
 
   .header__icon-link {
@@ -399,8 +427,8 @@
     display: flex;
     align-items: center;
     justify-content: center;
-    width: 2.5rem;
-    height: 2.5rem;
+    width: var(--icon-button-size);
+    height: var(--icon-button-size);
     border-radius: var(--radius-full);
     transition: background-color var(--transition-fast);
   }
@@ -410,8 +438,8 @@
   }
 
   .header__icon-link svg {
-    width: 1.25rem;
-    height: 1.25rem;
+    width: var(--icon-size);
+    height: var(--icon-size);
   }
 
   .header__cart-count {
@@ -433,7 +461,7 @@
   /* Mobile Navigation */
   .header__mobile-nav {
     position: fixed;
-    top: 4rem;
+    top: var(--header-height);
     left: 0;
     right: 0;
     bottom: 0;

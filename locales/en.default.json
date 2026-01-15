@@ -163,7 +163,9 @@
       "slide": "Slide",
       "previous_slide": "Previous slide",
       "next_slide": "Next slide",
-      "navigation_label": "Slide navigation"
+      "navigation_label": "Slide navigation",
+      "best_sellers_heading": "Best sellers",
+      "best_sellers_link": "Shop all"
     },
     "featured_collection": {
       "name": "Featured collection",

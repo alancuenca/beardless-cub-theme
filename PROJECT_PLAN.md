@@ -16,6 +16,8 @@ A custom Shopify 2.0 theme for clothing and jewelry retail, built from scratch i
 - [x] **Cart Drawer** - Full AJAX Cart API implementation
 - [x] **Product Page** - Enhanced with AJAX add-to-cart and metafields
 - [x] **Polish** - Responsive refinement, accessibility, performance
+- [x] **Header & Cart UX** - Refined header alignment, account routing, cart behavior
+- [x] **Customer Auth** - Use Shopify hosted login via storefront_login_url
 - [x] **Documentation** - README and code comments
 
 ---
@@ -58,6 +60,7 @@ Asset Strategy
 - 9 content position options
 - Light/dark text color options
 - Overlay opacity control
+- Optional best sellers product rail for hero
 
 **Schema Settings:**
 - Autoplay toggle

@@ -219,7 +219,6 @@ class CartDrawer {
       }
 
       const cart = await this.fetchCart();
-      this.open();
 
       // Dispatch custom event
       document.dispatchEvent(new CustomEvent('cart:item-added', {
@@ -345,6 +344,12 @@ class CartDrawer {
    * @param {Object} cart - Cart data from API
    */
   renderCart(cart) {
+    if (this.isOpen) {
+      this.drawer?.setAttribute('data-drawer-open', 'true');
+      this.drawer?.setAttribute('aria-hidden', 'false');
+      this.overlay?.classList.add('overlay--visible');
+    }
+
     // Update item count badges
     this.countElements.forEach(el => {
       el.textContent = cart.item_count;
