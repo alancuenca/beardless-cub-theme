@@ -16,6 +16,8 @@
           "type": "slide",
           "settings": {
             "image": "shopify://shop_images/mens-watch-and-ring.jpg",
+            "mobile_image": "shopify://shop_images/guardian-angel-earring-closeup_925x_9fbead2d-2082-4d55-a224-e44bb2432c4d.jpg",
+            "image_position": "center center",
             "overlay_opacity": 55,
             "subheading": "New Collection",
             "heading": "Discover Timeless Elegance",
@@ -30,6 +32,8 @@
           "type": "slide",
           "settings": {
             "image": "shopify://shop_images/model-with-leather-jacket-over-shoulders.jpg",
+            "mobile_image": "shopify://shop_images/womens-hand-moon-bracelet-_925x_86a73749-fbac-46db-b509-70d015c49b34.jpg",
+            "image_position": "center center",
             "overlay_opacity": 50,
             "subheading": "Artisan Quality",
             "heading": "Crafted with Care",
@@ -46,11 +50,9 @@
         "slide_2"
       ],
       "settings": {
+        "section_height": "moderate",
         "autoplay": true,
-        "autoplay_speed": 5,
-        "show_best_sellers": true,
-        "best_sellers_collection": "",
-        "best_sellers_limit": 5
+        "autoplay_speed": 5
       }
     },
     "featured_collection": {
