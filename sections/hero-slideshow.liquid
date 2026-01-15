@@ -33,7 +33,9 @@
         assign text_color = block.settings.text_color | default: 'light'
         assign overlay_opacity = block.settings.overlay_opacity | default: 40
         assign image_fit = block.settings.image_fit | default: 'cover'
-        assign image_position = block.settings.image_position | default: 'center'
+        assign image_position_mobile = block.settings.image_position_mobile | default: 'center'
+        assign image_position_desktop = block.settings.image_position_desktop | default: 'center'
+        assign mobile_image = block.settings.mobile_image
       %}
 
       <article
@@ -44,40 +46,47 @@
         aria-hidden="{% if is_first %}false{% else %}true{% endif %}"
       >
         {% comment %} Background Image {% endcomment %}
-        <div class="hero__media hero__media--{{ image_fit }}">
+        <div
+          class="hero__media hero__media--{{ image_fit }}"
+          style="--image-position-mobile: {{ image_position_mobile }}; --image-position-desktop: {{ image_position_desktop }};"
+        >
           {% if block.settings.image %}
-            <picture>
-              <source
-                media="(min-width: 768px)"
-                srcset="
-                  {{ block.settings.image | image_url: width: 1200 }} 1200w,
-                  {{ block.settings.image | image_url: width: 1600 }} 1600w,
-                  {{ block.settings.image | image_url: width: 2000 }} 2000w,
-                  {{ block.settings.image | image_url: width: 2400 }} 2400w
-                "
-                sizes="100vw"
-              >
-              <img
-                src="{{ block.settings.image | image_url: width: 800 }}"
-                srcset="
-                  {{ block.settings.image | image_url: width: 600 }} 600w,
-                  {{ block.settings.image | image_url: width: 800 }} 800w,
-                  {{ block.settings.image | image_url: width: 1000 }} 1000w
-                "
-                sizes="100vw"
-                alt="{{ block.settings.image.alt | default: block.settings.heading | escape }}"
-                width="{{ block.settings.image.width }}"
-                height="{{ block.settings.image.height }}"
-                class="hero__image"
-                style="object-position: {{ image_position }};"
-                {% if is_first %}
-                  loading="eager"
-                  fetchpriority="high"
-                {% else %}
-                  loading="lazy"
-                {% endif %}
-              >
-            </picture>
+            {% liquid
+              if is_first
+                assign loading_attr = 'eager'
+                assign priority_attr = 'high'
+              else
+                assign loading_attr = 'lazy'
+                assign priority_attr = 'auto'
+              endif
+              assign mobile_img = mobile_image | default: block.settings.image
+            %}
+
+            {% comment %} Desktop image {% endcomment %}
+            {{
+              block.settings.image
+              | image_url: width: 2400
+              | image_tag:
+                alt: block.settings.image.alt | default: block.settings.heading,
+                class: 'hero__image hero__image--desktop',
+                widths: '1200, 1600, 2000, 2400',
+                sizes: '100vw',
+                loading: loading_attr,
+                fetchpriority: priority_attr
+            }}
+
+            {% comment %} Mobile image (falls back to desktop if not set) {% endcomment %}
+            {{
+              mobile_img
+              | image_url: width: 1000
+              | image_tag:
+                alt: mobile_img.alt | default: block.settings.heading,
+                class: 'hero__image hero__image--mobile',
+                widths: '600, 800, 1000',
+                sizes: '100vw',
+                loading: loading_attr,
+                fetchpriority: priority_attr
+            }}
           {% else %}
             <div class="hero__placeholder">
               {{ 'lifestyle-1' | placeholder_svg_tag }}
@@ -404,18 +413,41 @@
     background-color: var(--color-foreground);
   }
 
-  /* Cover: Image fills container, may crop */
-  .hero__media--cover .hero__image {
+  /* Base image styles */
+  .hero__image {
     width: 100%;
     height: 100%;
+  }
+
+  /* Cover: Image fills container, may crop */
+  .hero__media--cover .hero__image {
     object-fit: cover;
   }
 
   /* Contain: Full image visible, may have background showing */
   .hero__media--contain .hero__image {
-    width: 100%;
-    height: 100%;
     object-fit: contain;
+  }
+
+  /* Responsive image visibility */
+  .hero__image--desktop {
+    display: none;
+  }
+
+  .hero__image--mobile {
+    display: block;
+    object-position: var(--image-position-mobile, center);
+  }
+
+  @media (min-width: 768px) {
+    .hero__image--desktop {
+      display: block;
+      object-position: var(--image-position-desktop, center);
+    }
+
+    .hero__image--mobile {
+      display: none;
+    }
   }
 
   .hero__placeholder {
@@ -661,26 +693,19 @@
       "name": "t:sections.hero.slide",
       "settings": [
         {
+          "type": "header",
+          "content": "t:sections.hero.desktop_image_heading"
+        },
+        {
           "type": "image_picker",
           "id": "image",
           "label": "t:sections.hero.image"
         },
         {
           "type": "select",
-          "id": "image_fit",
-          "label": "t:sections.hero.image_fit",
-          "info": "t:sections.hero.image_fit_info",
-          "options": [
-            { "value": "cover", "label": "t:options.image_fit.cover" },
-            { "value": "contain", "label": "t:options.image_fit.contain" }
-          ],
-          "default": "cover"
-        },
-        {
-          "type": "select",
-          "id": "image_position",
+          "id": "image_position_desktop",
           "label": "t:sections.hero.image_position",
-          "info": "t:sections.hero.image_position_info",
+          "info": "t:sections.hero.image_position_desktop_info",
           "options": [
             { "value": "top left", "label": "t:options.image_position.top_left" },
             { "value": "top center", "label": "t:options.image_position.top_center" },
@@ -693,6 +718,49 @@
             { "value": "bottom right", "label": "t:options.image_position.bottom_right" }
           ],
           "default": "center"
+        },
+        {
+          "type": "header",
+          "content": "t:sections.hero.mobile_image_heading"
+        },
+        {
+          "type": "image_picker",
+          "id": "mobile_image",
+          "label": "t:sections.hero.mobile_image",
+          "info": "t:sections.hero.mobile_image_info"
+        },
+        {
+          "type": "select",
+          "id": "image_position_mobile",
+          "label": "t:sections.hero.image_position",
+          "info": "t:sections.hero.image_position_mobile_info",
+          "options": [
+            { "value": "top left", "label": "t:options.image_position.top_left" },
+            { "value": "top center", "label": "t:options.image_position.top_center" },
+            { "value": "top right", "label": "t:options.image_position.top_right" },
+            { "value": "center left", "label": "t:options.image_position.center_left" },
+            { "value": "center", "label": "t:options.image_position.center" },
+            { "value": "center right", "label": "t:options.image_position.center_right" },
+            { "value": "bottom left", "label": "t:options.image_position.bottom_left" },
+            { "value": "bottom center", "label": "t:options.image_position.bottom_center" },
+            { "value": "bottom right", "label": "t:options.image_position.bottom_right" }
+          ],
+          "default": "center"
+        },
+        {
+          "type": "header",
+          "content": "t:sections.hero.style_heading"
+        },
+        {
+          "type": "select",
+          "id": "image_fit",
+          "label": "t:sections.hero.image_fit",
+          "info": "t:sections.hero.image_fit_info",
+          "options": [
+            { "value": "cover", "label": "t:options.image_fit.cover" },
+            { "value": "contain", "label": "t:options.image_fit.contain" }
+          ],
+          "default": "cover"
         },
         {
           "type": "range",
