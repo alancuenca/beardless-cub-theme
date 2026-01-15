@@ -97,8 +97,9 @@
       "large": "Large"
     },
     "section_height": {
-      "compact": "Compact (350-400px)",
-      "moderate": "Moderate (400-500px)"
+      "compact": "Compact",
+      "moderate": "Moderate",
+      "large": "Large"
     },
     "image_fit": {
       "cover": "Fill (may crop)",
@@ -123,18 +124,13 @@
       "section_height": "Section height",
       "autoplay": "Autoplay slides",
       "autoplay_speed": "Autoplay speed",
-      "desktop_image_heading": "Desktop image",
-      "image": "Image",
+      "image_heading": "Image",
+      "image": "Desktop image",
+      "mobile_image": "Mobile image",
+      "mobile_image_info": "Optional. Uses desktop image if not set.",
       "image_position": "Focal point",
-      "image_position_desktop_info": "Choose which part of the desktop image stays visible when cropped.",
-      "mobile_image_heading": "Mobile image",
-      "mobile_image": "Image (optional)",
-      "mobile_image_info": "Upload a different image for mobile devices. Leave empty to use the desktop image.",
-      "image_position_mobile_info": "Choose which part of the mobile image stays visible when cropped.",
-      "style_heading": "Style",
-      "image_fit": "Image fit",
-      "image_fit_info": "Fill crops the image to fit. Fit shows the full image with background.",
-      "overlay_opacity": "Overlay opacity",
+      "image_position_info": "Which part of the image stays visible when cropped.",
+      "overlay_opacity": "Overlay darkness",
       "subheading": "Subheading",
       "heading": "Heading",
       "button_text": "Button text",
